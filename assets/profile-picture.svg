@@ -1,0 +1,74 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background radial gradient -->
+    <radialGradient id="bg" cx="50%" cy="42%" r="60%" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(200 168) scale(240)">
+      <stop stop-color="#1a1a2e"/>
+      <stop offset="1" stop-color="#0a0a0f"/>
+    </radialGradient>
+
+    <!-- Dot grid pattern -->
+    <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.9" fill="#6366f1" fill-opacity="0.18"/>
+    </pattern>
+
+    <!-- Vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="50%">
+      <stop offset="40%" stop-color="#0a0a0f" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#0a0a0f" stop-opacity="1"/>
+    </radialGradient>
+
+    <!-- Purple glow behind dot -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Wave gradient -->
+    <linearGradient id="wave-grad" x1="111" y1="193" x2="289" y2="193" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+
+    <!-- Dot radial gradient -->
+    <radialGradient id="dot-grad" cx="38%" cy="32%" r="65%">
+      <stop stop-color="#b89cf7"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </radialGradient>
+
+    <!-- Dot glow filter -->
+    <filter id="dot-glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="400" fill="url(#bg)"/>
+
+  <!-- Dot grid -->
+  <rect width="400" height="400" fill="url(#grid)"/>
+
+  <!-- Vignette overlay -->
+  <rect width="400" height="400" fill="url(#vignette)"/>
+
+  <!-- Purple ambient glow -->
+  <ellipse cx="245" cy="165" rx="110" ry="110" fill="url(#glow)"/>
+
+  <!-- Wave path -->
+  <path
+    d="M111 259.5C138.333 196.833 167.667 178.5 199 204.5C230.333 230.5 260.333 230.833 289 205.5"
+    stroke="url(#wave-grad)"
+    stroke-width="44"
+    stroke-linejoin="round"
+  />
+
+  <!-- Floating dot -->
+  <circle cx="245" cy="165.5" r="25.5" fill="url(#dot-grad)" filter="url(#dot-glow)"/>
+
+  <!-- Final vignette for edge fade -->
+  <rect width="400" height="400" fill="url(#vignette)" opacity="0.5"/>
+</svg>
