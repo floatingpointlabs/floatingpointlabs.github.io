@@ -1,17 +1,30 @@
 # floatingpointlabs.github.io
 
-Landing page for [Floating Point Labs](https://floatingpointlabs.ca), hosted via GitHub Pages.
+Marketing landing page for [Floating Point Labs](https://floatingpointlabs.ca), built with [Astro](https://astro.build) and hosted on GitHub Pages.
+
+## Development
+
+```sh
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # output → dist/
+npm run preview  # serve dist/ locally
+```
 
 ## Structure
 
 ```
-index.html   — markup
-style.css    — styles and keyframe animations
-main.js      — animation logic and canvas effects
-favicon.svg  — site icon
-assets/      — logo files
+public/          — static assets copied verbatim (favicon, CNAME, logos)
+src/
+  pages/         — routes (index.astro)
+  layouts/       — BaseLayout.astro (html shell, fonts, global css)
+  components/    — Logo, Hero, Footer, BackgroundGrid, GlowDots, LogoImpact
+  styles/        — global.css
+astro.config.mjs
 ```
 
 ## Deployment
 
-Pushes to `main` deploy automatically via GitHub Pages. The custom domain `floatingpointlabs.ca` is configured in `CNAME`.
+Pushes to `main` trigger `.github/workflows/deploy.yml`, which builds with Astro and publishes via `actions/deploy-pages`. The custom apex domain `floatingpointlabs.ca` is preserved through `public/CNAME`.
+
+**One-time setup:** in the repo's GitHub Pages settings, set **Source** to "GitHub Actions".
