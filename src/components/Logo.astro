@@ -1,28 +1,29 @@
 ---
+
 ---
 
 <div class="logo-wrap">
   <svg id="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#6366f1" />
-        <stop offset="100%" stop-color="#a78bfa" />
+      <linearGradient id="wave-grad" x1="0%" x2="100%" y1="0%" y2="0%">
+        <stop offset="0%" stop-color="#6366f1"></stop>
+        <stop offset="100%" stop-color="#a78bfa"></stop>
       </linearGradient>
-      <radialGradient id="dot-grad" cx="38%" cy="32%" r="65%">
-        <stop offset="0%" stop-color="#b89cf7" />
-        <stop offset="100%" stop-color="#7c3aed" />
+      <radialGradient cx="38%" cy="32%" id="dot-grad" r="65%">
+        <stop offset="0%" stop-color="#b89cf7"></stop>
+        <stop offset="100%" stop-color="#7c3aed"></stop>
       </radialGradient>
     </defs>
 
     <path
-      id="wave-path"
+      d="M14 41q8.2-18.8 17.6-11.1t18 .3"
       fill="none"
+      id="wave-path"
       stroke="url(#wave-grad)"
       stroke-linejoin="round"
-      stroke-width="8.8"
-      d="M14 41q8.2-18.8 17.6-11.1t18 .3"
-    />
+      stroke-width="8.8">
+    </path>
 
-    <circle id="dot" cx="40.8" cy="22.2" r="5.1" fill="url(#dot-grad)" />
+    <circle cx="40.8" cy="22.2" fill="url(#dot-grad)" id="dot" r="5.1"></circle>
   </svg>
 </div>

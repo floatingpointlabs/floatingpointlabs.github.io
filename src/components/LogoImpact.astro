@@ -1,8 +1,9 @@
 ---
+
 ---
 
 <script>
-  const path = document.getElementById('wave-path') as SVGPathElement | null;
+  const path = document.getElementById("wave-path") as null | SVGPathElement;
   if (path) {
     const len = path.getTotalLength();
     path.style.strokeDasharray = String(len);
@@ -12,86 +13,94 @@
   const DOT_LANDS_MS = 1640;
 
   function createFlash(x: number, y: number) {
-    const el = document.createElement('div');
+    const el = document.createElement("div");
     Object.assign(el.style, {
-      position: 'fixed',
-      left: x + 'px',
-      top: y + 'px',
-      width: '500px',
-      height: '500px',
-      borderRadius: '50%',
       background:
-        'radial-gradient(circle, rgba(139,92,246,0.45) 0%, rgba(99,102,241,0.18) 35%, transparent 70%)',
-      transform: 'translate(-50%, -50%) scale(0)',
-      pointerEvents: 'none',
-      zIndex: '40',
+        "radial-gradient(circle, rgba(139,92,246,0.45) 0%, rgba(99,102,241,0.18) 35%, transparent 70%)",
+      borderRadius: "50%",
+      height: "500px",
+      left: x + "px",
+      pointerEvents: "none",
+      position: "fixed",
+      top: y + "px",
+      transform: "translate(-50%, -50%) scale(0)",
+      width: "500px",
+      zIndex: "40"
     });
     document.body.appendChild(el);
     el.animate(
       [
-        { opacity: 1, transform: 'translate(-50%, -50%) scale(0)' },
-        { opacity: 0.9, transform: 'translate(-50%, -50%) scale(1)', offset: 0.18 },
-        { opacity: 0, transform: 'translate(-50%, -50%) scale(1.6)' },
+        { opacity: 1, transform: "translate(-50%, -50%) scale(0)" },
+        {
+          offset: 0.18,
+          opacity: 0.9,
+          transform: "translate(-50%, -50%) scale(1)"
+        },
+        { opacity: 0, transform: "translate(-50%, -50%) scale(1.6)" }
       ],
-      { duration: 900, easing: 'ease-out', fill: 'forwards' }
+      { duration: 900, easing: "ease-out", fill: "forwards" }
     ).onfinish = () => el.remove();
   }
 
+  function shakeWrap() {
+    const wrap = document.querySelector(".logo-wrap");
+    if (!wrap) return;
+    wrap.animate(
+      [
+        { transform: "translate(0, 0)" },
+        { transform: "translate(-3px, 2px)" },
+        { transform: "translate(3px, -2px)" },
+        { transform: "translate(-2px, 1px)" },
+        { transform: "translate(1px, -1px)" },
+        { transform: "translate(0, 0)" }
+      ],
+      { duration: 280, easing: "ease-out" }
+    );
+  }
+
   function spawnParticles(x: number, y: number) {
-    const palette = ['#8b5cf6', '#6366f1', '#a78bfa', '#c4b5fd', '#7c3aed', '#818cf8'];
+    const palette = ["#8b5cf6", "#6366f1", "#a78bfa", "#c4b5fd", "#7c3aed", "#818cf8"];
     const count = 14;
     for (let i = 0; i < count; i++) {
-      const el = document.createElement('div');
+      const el = document.createElement("div");
       const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
       const dist = 28 + Math.random() * 48;
       const size = 2 + Math.random() * 2.5;
       const color = palette[i % palette.length];
       const dur = 480 + Math.random() * 320;
       Object.assign(el.style, {
-        position: 'fixed',
-        left: x + 'px',
-        top: y + 'px',
-        width: size + 'px',
-        height: size + 'px',
-        borderRadius: '50%',
         background: color,
-        pointerEvents: 'none',
-        zIndex: '60',
+        borderRadius: "50%",
+        height: size + "px",
+        left: x + "px",
+        pointerEvents: "none",
+        position: "fixed",
+        top: y + "px",
+        width: size + "px",
+        zIndex: "60"
       });
       document.body.appendChild(el);
       const tx = Math.cos(angle) * dist;
       const ty = Math.sin(angle) * dist;
       el.animate(
         [
-          { opacity: 1, transform: 'translate(-50%, -50%)' },
+          { opacity: 1, transform: "translate(-50%, -50%)" },
           {
             opacity: 0,
-            transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`,
-          },
+            transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`
+          }
         ],
-        { duration: dur, easing: 'cubic-bezier(0.2, 0.6, 0.4, 1)', fill: 'forwards' }
+        {
+          duration: dur,
+          easing: "cubic-bezier(0.2, 0.6, 0.4, 1)",
+          fill: "forwards"
+        }
       ).onfinish = () => el.remove();
     }
   }
 
-  function shakeWrap() {
-    const wrap = document.querySelector('.logo-wrap');
-    if (!wrap) return;
-    wrap.animate(
-      [
-        { transform: 'translate(0, 0)' },
-        { transform: 'translate(-3px, 2px)' },
-        { transform: 'translate(3px, -2px)' },
-        { transform: 'translate(-2px, 1px)' },
-        { transform: 'translate(1px, -1px)' },
-        { transform: 'translate(0, 0)' },
-      ],
-      { duration: 280, easing: 'ease-out' }
-    );
-  }
-
   setTimeout(() => {
-    const dotEl = document.getElementById('dot');
+    const dotEl = document.getElementById("dot");
     if (!dotEl) return;
     const r = dotEl.getBoundingClientRect();
     const cx = r.left + r.width / 2;
