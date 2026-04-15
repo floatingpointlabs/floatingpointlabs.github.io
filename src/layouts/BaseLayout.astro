@@ -1,11 +1,16 @@
 ---
+import BackgroundGrid from "../components/BackgroundGrid.astro";
+import Footer from "../components/Footer.astro";
+import GlowDots from "../components/GlowDots.astro";
+import Nav from "../components/Nav.astro";
 import "../styles/global.css";
 
 interface Props {
   title?: string;
+  variant?: "landing" | "page";
 }
 
-const { title = "Floating Point Labs" } = Astro.props;
+const { title = "Floating Point Labs", variant = "landing" } = Astro.props;
 ---
 
 <!doctype html>
@@ -22,7 +27,11 @@ const { title = "Floating Point Labs" } = Astro.props;
       rel="stylesheet"
     />
   </head>
-  <body>
+  <body class:list={[`variant-${variant}`]}>
+    <BackgroundGrid />
+    <GlowDots />
+    <Nav />
     <slot />
+    <Footer />
   </body>
 </html>

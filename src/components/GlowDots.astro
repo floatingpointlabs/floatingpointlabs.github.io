@@ -76,14 +76,21 @@
     requestAnimationFrame(draw);
   }
 
+  const isSplash = document.body.classList.contains("variant-landing");
+  const START_DELAY = isSplash ? 1900 : 0;
+  const FADE_DUR = isSplash ? 1400 : 0;
+
   setTimeout(() => {
-    const t0 = performance.now();
-    const FADE_DUR = 1400;
-    function fade(now: number) {
-      globalOpacity = Math.min(1, (now - t0) / FADE_DUR);
-      if (globalOpacity < 1) requestAnimationFrame(fade);
+    if (FADE_DUR === 0) {
+      globalOpacity = 1;
+    } else {
+      const t0 = performance.now();
+      function fade(now: number) {
+        globalOpacity = Math.min(1, (now - t0) / FADE_DUR);
+        if (globalOpacity < 1) requestAnimationFrame(fade);
+      }
+      requestAnimationFrame(fade);
     }
-    requestAnimationFrame(fade);
     requestAnimationFrame(draw);
-  }, 1900);
+  }, START_DELAY);
 </script>

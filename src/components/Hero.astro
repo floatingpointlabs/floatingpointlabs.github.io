@@ -1,7 +1,14 @@
 ---
 import Logo from "./Logo.astro";
+import Wordmark from "./Wordmark.astro";
 ---
 
-<Logo />
-<h1>Floating Point <span>Labs</span></h1>
-<p>Something is in the works. Check back soon.</p>
+<section class="hero">
+  <Logo />
+  <h1><Wordmark /></h1>
+  <p>Thoughtful software, built with care.</p>
+  <div class="hero-cta">
+    <a class="btn btn--primary" href="/services">Our services</a>
+    <a class="btn btn--ghost" href="/projects">See our work</a>
+  </div>
+</section>
