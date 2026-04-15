@@ -13,15 +13,17 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "fix": "npm run lint:fix && npm run format",
-    "check": "npm run lint && npm run format:check",
+    "fix": "pnpm lint:fix && pnpm format",
+    "check": "pnpm lint && pnpm format:check",
     "prepare": "lefthook install"
   },
+  "packageManager": "pnpm@10.33.0",
   "dependencies": {
     "astro": "^6.1.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@typescript-eslint/parser": "^8.58.2",
     "astro-eslint-parser": "^1.4.0",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
@@ -31,5 +33,12 @@
     "prettier": "^3.8.2",
     "prettier-plugin-astro": "^0.14.1",
     "typescript-eslint": "^8.58.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lefthook",
+      "sharp"
+    ]
   }
 }

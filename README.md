@@ -5,10 +5,10 @@ Marketing landing page for [Floating Point Labs](https://floatingpointlabs.ca), 
 ## Development
 
 ```sh
-npm install
-npm run dev      # http://localhost:4321
-npm run build    # output → dist/
-npm run preview  # serve dist/ locally
+pnpm install
+pnpm dev      # http://localhost:4321
+pnpm build    # output → dist/
+pnpm preview  # serve dist/ locally
 ```
 
 ## Structure
