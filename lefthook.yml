@@ -1,0 +1,11 @@
+pre-commit:
+  parallel: false
+  jobs:
+    - name: lint
+      glob: "*.{js,mjs,cjs,ts,astro}"
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
+    - name: format
+      glob: "*.{js,mjs,cjs,ts,astro,json,md,css,yml,yaml}"
+      run: pnpm exec prettier --write {staged_files}
+      stage_fixed: true
