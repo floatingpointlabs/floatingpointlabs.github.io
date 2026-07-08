@@ -1,23 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const projects = [
-  {
-    body: "A short description of a project we shipped, what it does, and who it helped.",
-    title: "Project one"
-  },
-  {
-    body: "A short description of a project we shipped, what it does, and who it helped.",
-    title: "Project two"
-  },
-  {
-    body: "A short description of a project we shipped, what it does, and who it helped.",
-    title: "Project three"
-  }
-];
 ---
 
-<BaseLayout title="Projects — Floating Point Labs" variant="page">
+<BaseLayout
+  description="Selected work from Floating Point Labs. Case studies of recent software engagements are coming soon."
+  title="Projects — Floating Point Labs"
+  variant="page">
   <main class="page">
     <header class="page__header">
       <p class="page__eyebrow">Projects</p>
@@ -26,15 +14,13 @@ const projects = [
     </header>
 
     <section class="section">
-      <div class="card-grid">
-        {
-          projects.map(({ body, title }) => (
-            <article class="card">
-              <h2 class="card__title">{title}</h2>
-              <p class="card__body">{body}</p>
-            </article>
-          ))
-        }
+      <div class="empty-state">
+        <p class="empty-state__title">Case studies are on the way</p>
+        <p class="empty-state__body">
+          We're writing up recent engagements — the software we've shipped, who it helped, and how.
+          In the meantime, <a href="/contact">get in touch</a> and we'll happily walk you through what
+          we've been building.
+        </p>
       </div>
     </section>
   </main>

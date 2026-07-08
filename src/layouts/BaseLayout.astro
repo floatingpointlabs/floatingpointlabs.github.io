@@ -6,11 +6,19 @@ import Nav from "../components/Nav.astro";
 import "../styles/global.css";
 
 interface Props {
+  description?: string;
   title?: string;
   variant?: "landing" | "page";
 }
 
-const { title = "Floating Point Labs", variant = "landing" } = Astro.props;
+const {
+  description = "Floating Point Labs is a small software studio building thoughtful, reliable software for teams that care about craft and clarity.",
+  title = "Floating Point Labs",
+  variant = "landing"
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/assets/logo-square-with-background.png", Astro.site);
 ---
 
 <!doctype html>
@@ -19,6 +27,23 @@ const { title = "Floating Point Labs", variant = "landing" } = Astro.props;
     <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{title}</title>
+    <meta content={description} name="description" />
+    <link href={canonical} rel="canonical" />
+
+    <!-- Open Graph -->
+    <meta content="website" property="og:type" />
+    <meta content="Floating Point Labs" property="og:site_name" />
+    <meta content={title} property="og:title" />
+    <meta content={description} property="og:description" />
+    <meta content={canonical} property="og:url" />
+    <meta content={ogImage} property="og:image" />
+
+    <!-- Twitter — `summary` suits the square logo; swap to a 1200x630 image + summary_large_image later -->
+    <meta content="summary" name="twitter:card" />
+    <meta content={title} name="twitter:title" />
+    <meta content={description} name="twitter:description" />
+    <meta content={ogImage} name="twitter:image" />
+
     <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
@@ -28,10 +53,22 @@ const { title = "Floating Point Labs", variant = "landing" } = Astro.props;
     />
   </head>
   <body class:list={[`variant-${variant}`]}>
+    <script is:inline>
+      // Play the intro splash only once per browsing session; returning or
+      // inner-page navigations then show content instantly.
+      if (sessionStorage.getItem("fpl-splash-seen")) {
+        document.body.classList.add("no-splash");
+      } else {
+        sessionStorage.setItem("fpl-splash-seen", "1");
+      }
+    </script>
+    <a class="skip-link" href="#main">Skip to content</a>
     <BackgroundGrid />
     <GlowDots />
     <Nav />
-    <slot />
+    <div id="main" tabindex="-1">
+      <slot />
+    </div>
     <Footer />
   </body>
 </html>
