@@ -55,11 +55,16 @@ const ogImage = new URL("/assets/logo-square-with-background.png", Astro.site);
   <body class:list={[`variant-${variant}`]}>
     <script is:inline>
       // Play the intro splash only once per browsing session; returning or
-      // inner-page navigations then show content instantly.
-      if (sessionStorage.getItem("fpl-splash-seen")) {
-        document.body.classList.add("no-splash");
-      } else {
-        sessionStorage.setItem("fpl-splash-seen", "1");
+      // inner-page navigations then show content instantly. Guard storage
+      // access, which can throw when blocked — then the splash simply replays.
+      try {
+        if (sessionStorage.getItem("fpl-splash-seen")) {
+          document.body.classList.add("no-splash");
+        } else {
+          sessionStorage.setItem("fpl-splash-seen", "1");
+        }
+      } catch {
+        // storage unavailable — leave the splash to play
       }
     </script>
     <a class="skip-link" href="#main">Skip to content</a>
