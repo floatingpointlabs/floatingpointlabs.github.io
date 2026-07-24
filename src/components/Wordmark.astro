@@ -1,0 +1,10 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<span class:list={["wordmark", className]}>
+  Floating Point <span class="wordmark__accent">Labs</span>
+</span>

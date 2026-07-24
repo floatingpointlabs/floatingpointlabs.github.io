@@ -1,16 +1,57 @@
 ---
-import BackgroundGrid from "../components/BackgroundGrid.astro";
-import Footer from "../components/Footer.astro";
-import GlowDots from "../components/GlowDots.astro";
 import Hero from "../components/Hero.astro";
 import LogoImpact from "../components/LogoImpact.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const previews = [
+  {
+    body: "We partner with founders and established teams to ship software that is reliable, understandable, and a pleasure to maintain.",
+    cta: "Read about us",
+    eyebrow: "About",
+    href: "/about",
+    title: "A small studio for thoughtful software"
+  },
+  {
+    body: "Product engineering, technical discovery, and team augmentation — a focused set of engagements designed to meet teams wherever they are.",
+    cta: "Explore services",
+    eyebrow: "Services",
+    href: "/services",
+    title: "Engagements built around your stage"
+  },
+  {
+    body: "A look at recent engagements and the teams we've helped ship. More case studies coming soon.",
+    cta: "See our work",
+    eyebrow: "Projects",
+    href: "/projects",
+    title: "Selected work"
+  }
+];
 ---
 
 <BaseLayout>
-  <BackgroundGrid />
   <Hero />
-  <Footer />
+  <div class="home-previews">
+    {
+      previews.map(({ body, cta, eyebrow, href, title }) => (
+        <section class="home-preview">
+          <p class="home-preview__eyebrow">{eyebrow}</p>
+          <h2 class="home-preview__title">{title}</h2>
+          <p class="home-preview__body">{body}</p>
+          <a class="home-preview__cta" href={href}>
+            {cta}
+            <svg aria-hidden="true" fill="none" viewBox="0 0 16 16">
+              <path
+                d="M3 8h10m0 0L9 4m4 4l-4 4"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+              />
+            </svg>
+          </a>
+        </section>
+      ))
+    }
+  </div>
   <LogoImpact />
-  <GlowDots />
 </BaseLayout>

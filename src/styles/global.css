@@ -1,3 +1,44 @@
+/* ---------- Design tokens ---------- */
+:root {
+  /* Color */
+  --color-bg: #0a0a0f;
+  --color-fg: #e2e8f0;
+  --color-muted: #94a3b8;
+  --color-subtle: #8593a8; /* 6.34:1 on --color-bg — passes WCAG AA */
+  --color-faint: #7a8699; /* 5.36:1 on --color-bg — passes WCAG AA */
+  --color-accent-1: #6366f1;
+  --color-accent-2: #a78bfa;
+  --gradient-brand: linear-gradient(135deg, var(--color-accent-1), var(--color-accent-2));
+  --border-brand: rgba(99, 102, 241, 0.18);
+  --border-brand-strong: rgba(167, 139, 250, 0.45);
+  --surface-brand: rgba(99, 102, 241, 0.04);
+  --surface-brand-hover: rgba(99, 102, 241, 0.12);
+
+  /* Type */
+  --font-display: "Anek Telugu", sans-serif;
+  --font-body: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --tracking-tight: -0.03em;
+
+  /* Space (4pt scale) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 6rem;
+
+  /* Radius */
+  --radius-md: 12px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 0.2s;
+}
+
+/* ---------- Reset ---------- */
 *,
 *::before,
 *::after {
@@ -7,36 +48,45 @@
 }
 
 body {
-  font-family:
-    "Geist",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    system-ui,
-    sans-serif;
-  background-color: #0a0a0f;
-  color: #e2e8f0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem;
-  overflow: hidden;
+  min-height: 100svh;
+  overflow-x: hidden;
 }
 
-/* Vignette so the dot grid fades out at the edges */
+/* ---------- Brand wordmark ---------- */
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  font-kerning: normal;
+  font-feature-settings:
+    "kern" 1,
+    "calt" 1,
+    "liga" 1;
+  text-rendering: optimizeLegibility;
+  white-space: nowrap;
+}
+
+.wordmark__accent {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---------- Landing backdrop ---------- */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, #0a0a0f 100%);
+  background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, var(--color-bg) 100%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* Central glow behind the logo */
 body::before {
   content: "";
   position: fixed;
@@ -69,18 +119,23 @@ body::before {
   animation: blob-appear 1.4s ease 1.9s forwards;
 }
 
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+}
+
 .logo-wrap {
   width: 260px;
   height: 260px;
-  position: relative;
-  z-index: 2;
-}
-
-h1,
-p,
-footer {
-  position: relative;
-  z-index: 2;
 }
 
 #logo {
@@ -89,11 +144,10 @@ footer {
   overflow: visible;
 }
 
-/* Wave draws itself */
 #wave-path {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
-  animation: draw-wave 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
+  animation: draw-wave 0.9s var(--ease-out) 0.4s forwards;
 }
 
 @keyframes draw-wave {
@@ -102,7 +156,6 @@ footer {
   }
 }
 
-/* Dot falls from top of viewport */
 #dot {
   opacity: 0;
   transform: translateY(-70vh);
@@ -116,7 +169,6 @@ footer {
   100% {
     filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.6));
   }
-
   50% {
     filter: drop-shadow(0 0 14px rgba(196, 181, 253, 0.95));
   }
@@ -127,44 +179,31 @@ footer {
     opacity: 1;
     transform: translateY(-70vh);
   }
-
   60% {
     transform: translateY(6px);
   }
-
   75% {
     transform: translateY(-5px);
   }
-
   88% {
     transform: translateY(3px);
   }
-
   100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-h1 {
-  font-family: "Anek Telugu", sans-serif;
+/* ---------- Hero typography ---------- */
+.hero h1 {
   font-size: clamp(1.8rem, 5vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-3);
   opacity: 0;
   animation: fade-up 0.6s ease 2s forwards;
 }
 
-h1 span {
-  background: linear-gradient(135deg, #6366f1, #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-p {
-  color: #64748b;
+.hero p {
+  color: var(--color-subtle);
   font-size: 1rem;
   max-width: 360px;
   opacity: 0;
@@ -176,18 +215,488 @@ p {
     opacity: 0;
     transform: translateY(14px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-footer {
-  position: fixed;
-  bottom: 1.5rem;
+.site-footer {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-6) var(--space-6) var(--space-5);
+  border-top: 1px solid var(--border-brand);
+}
+
+.site-footer__inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
   font-size: 0.8rem;
-  color: #334155;
+  color: var(--color-faint);
+}
+
+.site-footer__email {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--dur-fast) ease;
+}
+
+.site-footer__email:hover {
+  color: var(--color-accent-2);
+}
+
+@media (max-width: 560px) {
+  .site-footer__inner {
+    flex-direction: column;
+    gap: var(--space-2);
+    text-align: center;
+  }
+}
+
+/* ---------- Buttons ---------- */
+.hero-cta {
+  display: flex;
+  gap: 0.85rem;
+  margin-top: 1.75rem;
   opacity: 0;
   animation: fade-up 0.6s ease 2.4s forwards;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.3rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: -0.005em;
+  transition:
+    transform var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease,
+    background var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.btn--primary {
+  color: var(--color-bg);
+  background: var(--gradient-brand);
+  box-shadow: 0 10px 30px -12px rgba(99, 102, 241, 0.8);
+}
+
+.btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px -12px rgba(167, 139, 250, 0.9);
+}
+
+.btn--ghost {
+  color: var(--color-fg);
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+}
+
+.btn--ghost:hover {
+  transform: translateY(-1px);
+  border-color: rgba(167, 139, 250, 0.7);
+  background: var(--surface-brand-hover);
+}
+
+/* ---------- Inner page variant ---------- */
+body.variant-page::before {
+  animation: none;
+  opacity: 1;
+}
+
+/* ---------- Site nav ---------- */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: 1.1rem var(--space-6);
+  background: rgba(10, 10, 15, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.12);
+}
+
+.site-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--color-fg);
+  transition: opacity var(--dur-fast) ease;
+}
+
+.site-nav__brand:hover {
+  opacity: 0.85;
+}
+
+.site-nav__logo {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  overflow: visible;
+  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.45));
+}
+
+.site-nav__brand .wordmark {
+  font-size: 1.6rem;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  transform: translateY(0.12em);
+}
+
+@media (max-width: 480px) {
+  .site-nav__brand .wordmark {
+    display: none;
+  }
+}
+
+.site-nav__links {
+  display: flex;
+  gap: 1.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-nav__link {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  text-decoration: none;
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease;
+}
+
+.site-nav__link:hover {
+  color: var(--color-fg);
+}
+
+.site-nav__link.is-active {
+  color: var(--color-fg);
+  border-bottom-color: var(--color-accent-2);
+}
+
+@media (max-width: 560px) {
+  .site-nav {
+    padding: 0.9rem 1.25rem;
+    gap: var(--space-4);
+  }
+  .site-nav__links {
+    gap: var(--space-4);
+  }
+  .site-nav__link {
+    font-size: 0.85rem;
+  }
+}
+
+/* ---------- Inner page scaffolding ---------- */
+.page {
+  position: relative;
+  z-index: 2;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 8rem var(--space-6) var(--space-8);
+  animation: fade-up 0.5s var(--ease-out) 0.1s both;
+}
+
+.page__header {
+  margin-bottom: var(--space-7);
+}
+
+.page__eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-accent-2);
+  margin-bottom: var(--space-3);
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
+  margin-bottom: var(--space-3);
+  animation: none;
+  opacity: 1;
+}
+
+.page__lede {
+  color: var(--color-muted);
+  font-size: 1.1rem;
+  max-width: 640px;
+  animation: none;
+  opacity: 1;
+}
+
+.section {
+  margin-top: var(--space-7);
+}
+
+.section__title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-fg);
+  margin-bottom: var(--space-4);
+}
+
+.section__body {
+  color: var(--color-muted);
+  font-size: 1rem;
+  line-height: 1.65;
+  max-width: 640px;
+  animation: none;
+  opacity: 1;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.card {
+  padding: var(--space-5);
+  border: 1px solid var(--border-brand);
+  border-radius: var(--radius-md);
+  background: var(--surface-brand);
+}
+
+.card__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-fg);
+  margin-bottom: var(--space-2);
+}
+
+.card__body {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  animation: none;
+  opacity: 1;
+}
+
+/* ---------- Empty / coming-soon state ---------- */
+.empty-state {
+  padding: var(--space-6);
+  border: 1px dashed var(--border-brand-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-brand);
+  max-width: 640px;
+}
+
+.empty-state__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-fg);
+  margin-bottom: var(--space-3);
+}
+
+.empty-state__body {
+  color: var(--color-muted);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+/* Prose links inside body copy */
+.section__body a,
+.empty-state__body a,
+.page__lede a {
+  color: var(--color-accent-2);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  transition: color var(--dur-fast) ease;
+}
+
+.section__body a:hover,
+.empty-state__body a:hover,
+.page__lede a:hover {
+  color: var(--color-fg);
+}
+
+/* ---------- Home preview sections ---------- */
+.home-previews {
+  position: relative;
+  z-index: 2;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.home-preview {
+  padding: var(--space-8) 0;
+  border-top: 1px solid var(--border-brand);
+}
+
+.home-preview__eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-accent-2);
+  margin-bottom: var(--space-3);
+}
+
+.home-preview__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
+  margin-bottom: var(--space-4);
+}
+
+.home-preview__body {
+  color: var(--color-muted);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  max-width: 640px;
+  margin-bottom: var(--space-5);
+}
+
+.home-preview__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-fg);
+  text-decoration: none;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid var(--border-brand-strong);
+  transition:
+    color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    gap var(--dur-fast) ease;
+}
+
+.home-preview__cta:hover {
+  color: var(--color-accent-2);
+  border-bottom-color: var(--color-accent-2);
+  gap: 0.7rem;
+}
+
+.home-preview__cta svg {
+  width: 1em;
+  height: 1em;
+}
+
+/* ---------- Accessibility ---------- */
+
+/* Skip link — visible only when focused */
+.skip-link {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-1);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-150%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* The skip-link target should not draw a focus box around the whole page */
+#main:focus {
+  outline: none;
+}
+
+/* Consistent, brand-tinted keyboard focus ring on all interactive elements */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--color-accent-2);
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+}
+
+/* ---------- Splash replays only once per session ---------- */
+/* `no-splash` is set from an inline head script when the intro has already
+   played this session, so returning/inner navigations show content instantly. */
+body.no-splash .hero h1,
+body.no-splash .hero p,
+body.no-splash .hero-cta {
+  opacity: 1;
+  animation: none;
+}
+
+body.no-splash #wave-path {
+  stroke-dashoffset: 0;
+  animation: none;
+}
+
+body.no-splash #dot {
+  opacity: 1;
+  transform: none;
+  animation: dot-glow-pulse 3s ease-in-out infinite;
+}
+
+body.no-splash .bg-grid,
+body.no-splash::before {
+  opacity: 1;
+  animation: none;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Guarantee the intro's end state is shown at rest */
+  .hero h1,
+  .hero p,
+  .hero-cta,
+  .bg-grid {
+    opacity: 1 !important;
+  }
+
+  #wave-path {
+    stroke-dashoffset: 0 !important;
+  }
+
+  #dot {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

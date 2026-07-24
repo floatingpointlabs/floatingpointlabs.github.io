@@ -1,0 +1,47 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const services = [
+  {
+    body: "Full-stack development for web and backend systems, from prototype to production.",
+    title: "Product engineering"
+  },
+  {
+    body: "Scoping, architecture reviews, and planning engagements for teams navigating uncertainty.",
+    title: "Technical discovery"
+  },
+  {
+    body: "Embedded senior engineers to accelerate delivery and level up in-house practices.",
+    title: "Team augmentation"
+  }
+];
+---
+
+<BaseLayout
+  description="Product engineering, technical discovery, and team augmentation — a focused set of engagements designed to meet teams wherever they are."
+  title="Services — Floating Point Labs"
+  variant="page">
+  <main class="page">
+    <header class="page__header">
+      <p class="page__eyebrow">Services</p>
+      <h1 class="page__title">Engagements built around your stage</h1>
+      <p class="page__lede">
+        A focused set of engagements designed to meet teams wherever they are in their product
+        lifecycle.
+      </p>
+    </header>
+
+    <section class="section">
+      <div class="card-grid">
+        {
+          services.map(({ body, title }) => (
+            <article class="card">
+              <h2 class="card__title">{title}</h2>
+              <p class="card__body">{body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</BaseLayout>

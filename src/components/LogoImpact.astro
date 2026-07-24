@@ -3,8 +3,13 @@
 ---
 
 <script>
+  // The intro only choreographs on a first-of-session landing visit for users
+  // who haven't asked to reduce motion. Otherwise the logo renders at rest.
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const animateIntro = !prefersReducedMotion && !document.body.classList.contains("no-splash");
+
   const path = document.getElementById("wave-path") as null | SVGPathElement;
-  if (path) {
+  if (path && animateIntro) {
     const len = path.getTotalLength();
     path.style.strokeDasharray = String(len);
     path.style.strokeDashoffset = String(len);
@@ -99,15 +104,16 @@
     }
   }
 
-  setTimeout(() => {
-    const dotEl = document.getElementById("dot");
-    if (!dotEl) return;
-    const r = dotEl.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
+  if (animateIntro)
+    setTimeout(() => {
+      const dotEl = document.getElementById("dot");
+      if (!dotEl) return;
+      const r = dotEl.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
 
-    shakeWrap();
-    createFlash(cx, cy);
-    spawnParticles(cx, cy);
-  }, DOT_LANDS_MS);
+      shakeWrap();
+      createFlash(cx, cy);
+      spawnParticles(cx, cy);
+    }, DOT_LANDS_MS);
 </script>
