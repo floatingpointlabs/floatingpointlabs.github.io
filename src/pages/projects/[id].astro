@@ -1,0 +1,69 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import { getCollection, render } from "astro:content";
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+/*
+ * Generates one page per case study. While the collection is empty this yields
+ * zero routes, which is correct — the plumbing is in place for the first real
+ * entry without anything placeholder shipping in the meantime.
+ */
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({ params: { id: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { client, stack, summary, title, year } = project.data;
+---
+
+<BaseLayout description={summary} title={`${title} — Floating Point Labs`} variant="page">
+  <main class="page">
+    <header class="page__header">
+      <p class="page__eyebrow">Case study</p>
+      <h1 class="page__title">{title}</h1>
+      <p class="page__lede">{summary}</p>
+      <div class="meta">
+        {client && <span>{client}</span>}
+        {year && <span>{year}</span>}
+      </div>
+      {
+        stack.length > 0 && (
+          <div class="tag-row">
+            {stack.map((item) => (
+              <span class="tag">{item}</span>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    <section class="section">
+      <div class="section__body">
+        <Content />
+      </div>
+    </section>
+
+    <section class="section">
+      <a class="home-preview__cta" href="/projects">
+        All case studies
+        <svg aria-hidden="true" fill="none" viewBox="0 0 16 16">
+          <path
+            d="M3 8h10m0 0L9 4m4 4l-4 4"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.75">
+          </path>
+        </svg>
+      </a>
+    </section>
+  </main>
+</BaseLayout>

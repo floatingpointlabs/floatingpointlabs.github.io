@@ -1,0 +1,29 @@
+---
+import Ascii from "../components/Ascii.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { renderMark } from "../lib/ascii";
+
+// Same mark as the hero, just not split into animated layers.
+const { full: mark } = renderMark();
+---
+
+<BaseLayout
+  description="That page could not be found."
+  title="Not found — Floating Point Labs"
+  variant="page">
+  <main class="page notfound">
+    <Ascii alt="The Floating Point Labs mark." lines={mark} />
+    <header class="page__header">
+      <p class="page__eyebrow">Error 404</p>
+      <h1 class="page__title">That page drifted off</h1>
+      <p class="page__lede">
+        The page you're after doesn't exist — it may have moved, or the link may be wrong.
+      </p>
+    </header>
+
+    <div class="hero-cta">
+      <a class="btn btn--primary" href="/">Back home</a>
+      <a class="btn btn--ghost" href="/contact">Get in touch</a>
+    </div>
+  </main>
+</BaseLayout>

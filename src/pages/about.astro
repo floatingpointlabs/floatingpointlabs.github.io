@@ -1,5 +1,44 @@
 ---
+import { getCollection, render } from "astro:content";
+
+import SectionHeader from "../components/SectionHeader.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const team = (await getCollection("team")).sort((a, b) => a.data.order - b.data.order);
+
+// Pre-render each bio so the markdown body of a team entry actually shows up.
+const teamEntries = await Promise.all(
+  team.map(async (member) => ({ Content: (await render(member)).Content, member }))
+);
+
+/*
+ * Drawn directly from the copy already on this page ("small teams, tight
+ * feedback loops, and a bias toward shipping", "simple designs that can evolve
+ * over complex abstractions that can't", "reliable, understandable, and a
+ * pleasure to maintain"). No new claims about the studio are made here.
+ */
+const principles = [
+  {
+    body: "Small teams and tight feedback loops, so the people making decisions are the people doing the work.",
+    index: "01",
+    title: "Small teams"
+  },
+  {
+    body: "A bias toward shipping. Software that reaches real users teaches you things that planning cannot.",
+    index: "02",
+    title: "Bias toward shipping"
+  },
+  {
+    body: "We prefer simple designs that can evolve over complex abstractions that can't.",
+    index: "03",
+    title: "Simple over clever"
+  },
+  {
+    body: "Reliable, understandable, and a pleasure to maintain — long after the engagement ends.",
+    index: "04",
+    title: "Built to be maintained"
+  }
+];
 ---
 
 <BaseLayout
@@ -17,7 +56,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </header>
 
     <section class="section">
-      <h2 class="section__title">What we do</h2>
+      <SectionHeader index="01" title="What we do" />
       <p class="section__body">
         From early product exploration to production-grade systems, we partner with founders and
         established teams to ship software that is reliable, understandable, and a pleasure to
@@ -26,16 +65,58 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </section>
 
     <section class="section">
-      <h2 class="section__title">How we work</h2>
-      <p class="section__body">
-        Small teams, tight feedback loops, and a bias toward shipping. We prefer simple designs that
-        can evolve over complex abstractions that can't.
-      </p>
+      <SectionHeader index="02" title="How we work" />
+      <div class="card-grid">
+        {
+          principles.map(({ body, index, title }) => (
+            <article class="panel">
+              <p class="panel__label">
+                <span aria-hidden="true">{index}</span>
+                Principle
+              </p>
+              <h3 class="panel__title">{title}</h3>
+              <p class="panel__body">{body}</p>
+            </article>
+          ))
+        }
+      </div>
     </section>
 
     <section class="section">
-      <h2 class="section__title">Team</h2>
-      <p class="section__body">Team details coming soon.</p>
+      <SectionHeader index="03" title="Team" />
+      {
+        teamEntries.length > 0 ? (
+          <div class="card-grid">
+            {teamEntries.map(({ Content, member }) => (
+              <article class="panel">
+                <p class="panel__label">{member.data.role}</p>
+                <h3 class="panel__title">{member.data.name}</h3>
+                <div class="panel__body">
+                  <Content />
+                </div>
+                {member.data.links.length > 0 && (
+                  <div class="tag-row">
+                    {member.data.links.map((link) => (
+                      <a class="tag" href={link.href} rel="noopener noreferrer" target="_blank">
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <p class="empty-state__title">Team details are on the way</p>
+            <p class="empty-state__body">
+              We're putting together proper introductions. In the meantime,{" "}
+              <a href="/contact">get in touch</a> and you'll hear back from the people who would
+              actually do the work.
+            </p>
+          </div>
+        )
+      }
     </section>
   </main>
 </BaseLayout>

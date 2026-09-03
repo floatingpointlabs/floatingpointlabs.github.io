@@ -1,7 +1,7 @@
 ---
+import AsciiDrift from "../components/AsciiDrift.astro";
 import BackgroundGrid from "../components/BackgroundGrid.astro";
 import Footer from "../components/Footer.astro";
-import GlowDots from "../components/GlowDots.astro";
 import Nav from "../components/Nav.astro";
 import "../styles/global.css";
 
@@ -48,7 +48,7 @@ const ogImage = new URL("/assets/logo-square-with-background.png", Astro.site);
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;700;800&family=Anek+Telugu:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;700;800&family=Geist+Mono:wght@400;700&family=Anek+Telugu:wght@700&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -69,7 +69,7 @@ const ogImage = new URL("/assets/logo-square-with-background.png", Astro.site);
     </script>
     <a class="skip-link" href="#main">Skip to content</a>
     <BackgroundGrid />
-    <GlowDots />
+    <AsciiDrift />
     <Nav />
     <div id="main" tabindex="-1">
       <slot />

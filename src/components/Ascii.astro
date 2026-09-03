@@ -1,0 +1,27 @@
+---
+/**
+ * Renders generated character art.
+ *
+ * The art is decorative, so the `<pre>` is hidden from assistive tech and an
+ * optional text alternative is exposed alongside it. Character art must never
+ * be the only thing carrying a piece of meaning.
+ */
+interface Props {
+  alt?: string;
+  class?: string;
+  lines: string[];
+}
+
+const { alt, class: className, lines } = Astro.props;
+
+/*
+ * The leading newline is deliberate and load-bearing. HTML parsers drop a single
+ * newline immediately after a `<pre>` start tag, so art whose first row is blank
+ * would lose that row and shift up — which silently misaligns stacked layers
+ * like the hero's wave and dot. This one gets eaten in its place.
+ */
+const content = `\n${lines.join("\n")}`;
+---
+
+<pre aria-hidden="true" class:list={["ascii", className]}>{content}</pre>
+{alt && <span class="sr-only">{alt}</span>}

@@ -6,10 +6,10 @@
   // Purely decorative ambient motion — skip entirely for reduced-motion users.
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!prefersReducedMotion) {
-    startGlowDots();
+    startAsciiDrift();
   }
 
-  function startGlowDots() {
+  function startAsciiDrift() {
     const canvas = document.createElement("canvas");
     Object.assign(canvas.style, {
       height: "100%",
@@ -22,20 +22,28 @@
     document.body.prepend(canvas);
     const ctx = canvas.getContext("2d")!;
 
+    // Glyphs, unlike circles, show their edges — so back the canvas with the
+    // device pixel ratio or the characters render soft on retina displays.
+    let dpr = 1;
+
     function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     resize();
     window.addEventListener("resize", resize);
 
     const palette = ["#a78bfa", "#818cf8", "#c4b5fd", "#6366f1", "#8b5cf6"];
+    const glyphs = ".:-=+*#%@";
+    const fontStack = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace';
 
-    const dots = Array.from({ length: 14 }, () => ({
-      baseAlpha: 0.18 + Math.random() * 0.15,
+    const drifters = Array.from({ length: 18 }, () => ({
+      baseAlpha: 0.16 + Math.random() * 0.16,
+      char: glyphs[Math.floor(Math.random() * glyphs.length)],
       color: palette[Math.floor(Math.random() * palette.length)],
-      glowRadius: 6 + Math.random() * 8,
-      r: 1 + Math.random() * 1.5,
+      size: 11 + Math.random() * 9,
       twinklePhase: Math.random() * Math.PI * 2,
       twinkleSpeed: 0.0003 + Math.random() * 0.0005,
       vx: (Math.random() - 0.5) * 0.1,
@@ -47,36 +55,32 @@
     let globalOpacity = 0;
 
     function draw(t: number) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const width = canvas.width / dpr;
+      const height = canvas.height / dpr;
 
-      for (const d of dots) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      for (const d of drifters) {
         d.x += d.vx;
         d.y += d.vy;
-        if (d.x < -20) d.x = canvas.width + 20;
-        if (d.x > canvas.width + 20) d.x = -20;
-        if (d.y < -20) d.y = canvas.height + 20;
-        if (d.y > canvas.height + 20) d.y = -20;
+        if (d.x < -20) d.x = width + 20;
+        if (d.x > width + 20) d.x = -20;
+        if (d.y < -20) d.y = height + 20;
+        if (d.y > height + 20) d.y = -20;
 
         const twinkle = 0.55 + 0.45 * Math.sin(t * d.twinkleSpeed + d.twinklePhase);
         const a = d.baseAlpha * twinkle * globalOpacity;
         if (a < 0.005) continue;
 
         ctx.save();
+        ctx.font = `${d.size}px ${fontStack}`;
         ctx.fillStyle = d.color;
-        ctx.globalAlpha = a * 0.35;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r + d.glowRadius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = a * 0.65;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r + d.glowRadius * 0.35, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = a;
         ctx.shadowColor = d.color;
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.shadowBlur = 10;
+        ctx.globalAlpha = a;
+        ctx.fillText(d.char, d.x, d.y);
         ctx.restore();
       }
 

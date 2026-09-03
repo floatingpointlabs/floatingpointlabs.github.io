@@ -8,28 +8,28 @@
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const animateIntro = !prefersReducedMotion && !document.body.classList.contains("no-splash");
 
-  const path = document.getElementById("wave-path") as null | SVGPathElement;
-  if (path && animateIntro) {
-    const len = path.getTotalLength();
-    path.style.strokeDasharray = String(len);
-    path.style.strokeDashoffset = String(len);
-  }
-
+  // The wave is character art now and reveals via clip-path, so there is no
+  // stroke length to prime — only the dot's landing still needs choreographing.
   const DOT_LANDS_MS = 1640;
+  const GLYPHS = ".:-=+*#%@";
+  const PALETTE = ["#8b5cf6", "#6366f1", "#a78bfa", "#c4b5fd", "#7c3aed", "#818cf8"];
+  const FONT_STACK = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace';
 
+  // Kept, but softened: the glow is the light of the impact, the characters are
+  // the debris. Without any glow the burst reads as flat text rather than force.
   function createFlash(x: number, y: number) {
     const el = document.createElement("div");
     Object.assign(el.style, {
       background:
-        "radial-gradient(circle, rgba(139,92,246,0.45) 0%, rgba(99,102,241,0.18) 35%, transparent 70%)",
+        "radial-gradient(circle, rgba(139,92,246,0.32) 0%, rgba(99,102,241,0.12) 35%, transparent 70%)",
       borderRadius: "50%",
-      height: "500px",
+      height: "380px",
       left: x + "px",
       pointerEvents: "none",
       position: "fixed",
       top: y + "px",
       transform: "translate(-50%, -50%) scale(0)",
-      width: "500px",
+      width: "380px",
       zIndex: "40"
     });
     document.body.appendChild(el);
@@ -38,7 +38,7 @@
         { opacity: 1, transform: "translate(-50%, -50%) scale(0)" },
         {
           offset: 0.18,
-          opacity: 0.9,
+          opacity: 0.85,
           transform: "translate(-50%, -50%) scale(1)"
         },
         { opacity: 0, transform: "translate(-50%, -50%) scale(1.6)" }
@@ -47,8 +47,56 @@
     ).onfinish = () => el.remove();
   }
 
+  /**
+   * Locate the dot's centre on screen.
+   *
+   * The dot layer spans the whole character grid, so its bounding box is no help
+   * — the dot could be anywhere inside it. Instead take the grid cell computed at
+   * build time and measure one character to convert cells into pixels, which
+   * keeps this correct whatever the font's real advance width turns out to be.
+   */
+  function dotCentre() {
+    const art = document.querySelector(".hero__art");
+    const layer = document.querySelector(".hero__dot");
+    if (!art || !layer) return null;
+
+    const col = Number(art.getAttribute("data-dot-col"));
+    const row = Number(art.getAttribute("data-dot-row"));
+    if (!Number.isFinite(col) || !Number.isFinite(row)) return null;
+
+    const styles = getComputedStyle(layer);
+    const probe = document.createElement("span");
+    probe.textContent = "0";
+    // Copy the longhands rather than the `font` shorthand — getComputedStyle
+    // returns "" for the shorthand in Firefox, which would silently measure the
+    // default font and drop the burst in the wrong place.
+    Object.assign(probe.style, {
+      fontFamily: styles.fontFamily,
+      fontSize: styles.fontSize,
+      fontStyle: styles.fontStyle,
+      fontWeight: styles.fontWeight,
+      letterSpacing: styles.letterSpacing,
+      position: "absolute",
+      visibility: "hidden",
+      whiteSpace: "pre"
+    });
+    document.body.appendChild(probe);
+    const advance = probe.getBoundingClientRect().width;
+    probe.remove();
+
+    const lineHeight = parseFloat(styles.lineHeight);
+    if (!advance || !Number.isFinite(lineHeight)) return null;
+
+    const rect = layer.getBoundingClientRect();
+    return {
+      x: rect.left + (col + 0.5) * advance,
+      y: rect.top + (row + 0.5) * lineHeight
+    };
+  }
+
   function shakeWrap() {
-    const wrap = document.querySelector(".logo-wrap");
+    // The whole mark reacts, not just the dot.
+    const wrap = document.querySelector(".hero__art");
     if (!wrap) return;
     wrap.animate(
       [
@@ -63,36 +111,44 @@
     );
   }
 
-  function spawnParticles(x: number, y: number) {
-    const palette = ["#8b5cf6", "#6366f1", "#a78bfa", "#c4b5fd", "#7c3aed", "#818cf8"];
-    const count = 14;
+  /**
+   * The impact throws ramp characters outward instead of coloured dots, so the
+   * splash lands in the same material as the rest of the identity.
+   */
+  function spawnGlyphs(x: number, y: number) {
+    const count = 20;
     for (let i = 0; i < count; i++) {
-      const el = document.createElement("div");
+      const el = document.createElement("span");
       const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
-      const dist = 28 + Math.random() * 48;
-      const size = 2 + Math.random() * 2.5;
-      const color = palette[i % palette.length];
-      const dur = 480 + Math.random() * 320;
+      const dist = 32 + Math.random() * 66;
+      const color = PALETTE[i % PALETTE.length];
+      const dur = 520 + Math.random() * 360;
+
+      el.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      el.setAttribute("aria-hidden", "true");
       Object.assign(el.style, {
-        background: color,
-        borderRadius: "50%",
-        height: size + "px",
+        color,
+        fontFamily: FONT_STACK,
+        fontSize: 11 + Math.random() * 9 + "px",
+        fontWeight: "700",
         left: x + "px",
+        lineHeight: "1",
         pointerEvents: "none",
         position: "fixed",
+        textShadow: `0 0 8px ${color}`,
         top: y + "px",
-        width: size + "px",
         zIndex: "60"
       });
       document.body.appendChild(el);
+
       const tx = Math.cos(angle) * dist;
       const ty = Math.sin(angle) * dist;
       el.animate(
         [
-          { opacity: 1, transform: "translate(-50%, -50%)" },
+          { opacity: 1, transform: "translate(-50%, -50%) scale(1)" },
           {
             opacity: 0,
-            transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`
+            transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0.55)`
           }
         ],
         {
@@ -106,14 +162,11 @@
 
   if (animateIntro)
     setTimeout(() => {
-      const dotEl = document.getElementById("dot");
-      if (!dotEl) return;
-      const r = dotEl.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
+      const centre = dotCentre();
+      if (!centre) return;
 
       shakeWrap();
-      createFlash(cx, cy);
-      spawnParticles(cx, cy);
+      createFlash(centre.x, centre.y);
+      spawnGlyphs(centre.x, centre.y);
     }, DOT_LANDS_MS);
 </script>

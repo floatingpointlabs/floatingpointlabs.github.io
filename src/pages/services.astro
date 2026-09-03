@@ -1,20 +1,7 @@
 ---
+import SectionHeader from "../components/SectionHeader.astro";
+import { processSteps, services } from "../data/services";
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const services = [
-  {
-    body: "Full-stack development for web and backend systems, from prototype to production.",
-    title: "Product engineering"
-  },
-  {
-    body: "Scoping, architecture reviews, and planning engagements for teams navigating uncertainty.",
-    title: "Technical discovery"
-  },
-  {
-    body: "Embedded senior engineers to accelerate delivery and level up in-house practices.",
-    title: "Team augmentation"
-  }
-];
 ---
 
 <BaseLayout
@@ -32,16 +19,56 @@ const services = [
     </header>
 
     <section class="section">
+      <SectionHeader index="01" title="Engagements" />
       <div class="card-grid">
         {
-          services.map(({ body, title }) => (
-            <article class="card">
-              <h2 class="card__title">{title}</h2>
-              <p class="card__body">{body}</p>
+          services.map(({ body, focus, index, title }) => (
+            <article class="panel">
+              <p class="panel__label">
+                <span aria-hidden="true">{index}</span>
+                Engagement
+              </p>
+              <h2 class="panel__title">{title}</h2>
+              <p class="panel__body">{body}</p>
+              <div class="tag-row">
+                {focus.map((item) => (
+                  <span class="tag">{item}</span>
+                ))}
+              </div>
             </article>
           ))
         }
       </div>
+    </section>
+
+    <section class="section">
+      <SectionHeader index="02" title="How an engagement runs" />
+      <p class="section__body">
+        Every engagement is shaped around the team it's for, but the rhythm is consistent.
+      </p>
+      <ol class="steps">
+        {
+          processSteps.map(({ body, index, title }) => (
+            <li class="step">
+              <span aria-hidden="true" class="step__marker">
+                {index}
+              </span>
+              <div>
+                <h3 class="step__title">{title}</h3>
+                <p class="step__body">{body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="section">
+      <SectionHeader index="03" title="Starting a conversation" />
+      <p class="section__body">
+        If you're weighing up an engagement, <a href="/contact">get in touch</a> — we're happy to talk
+        through the shape of the work before anyone commits to anything.
+      </p>
     </section>
   </main>
 </BaseLayout>
