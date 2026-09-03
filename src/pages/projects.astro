@@ -9,9 +9,9 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
 
 <BaseLayout
   description="Selected work from Floating Point Labs. Case studies of recent software engagements are coming soon."
-  title="Projects — Floating Point Labs"
+  title="Projects"
   variant="page">
-  <main class="page">
+  <div class="page">
     <header class="page__header">
       <p class="page__eyebrow">Projects</p>
       <h1 class="page__title">Selected work</h1>
@@ -58,5 +58,5 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
         )
       }
     </section>
-  </main>
+  </div>
 </BaseLayout>

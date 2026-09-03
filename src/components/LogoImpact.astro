@@ -3,6 +3,8 @@
 ---
 
 <script>
+  import { readMonoStack, readPalette } from "../lib/theme";
+
   // The intro only choreographs on a first-of-session landing visit for users
   // who haven't asked to reduce motion. Otherwise the logo renders at rest.
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -12,8 +14,8 @@
   // stroke length to prime — only the dot's landing still needs choreographing.
   const DOT_LANDS_MS = 1640;
   const GLYPHS = ".:-=+*#%@";
-  const PALETTE = ["#8b5cf6", "#6366f1", "#a78bfa", "#c4b5fd", "#7c3aed", "#818cf8"];
-  const FONT_STACK = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace';
+  const PALETTE = readPalette();
+  const FONT_STACK = readMonoStack();
 
   // Kept, but softened: the glow is the light of the impact, the characters are
   // the debris. Without any glow the burst reads as flat text rather than force.
@@ -21,7 +23,8 @@
     const el = document.createElement("div");
     Object.assign(el.style, {
       background:
-        "radial-gradient(circle, rgba(139,92,246,0.32) 0%, rgba(99,102,241,0.12) 35%, transparent 70%)",
+        "radial-gradient(circle, color-mix(in srgb, var(--violet-500) 32%, transparent) 0%, " +
+        "color-mix(in srgb, var(--brand-500) 12%, transparent) 35%, transparent 70%)",
       borderRadius: "50%",
       height: "380px",
       left: x + "px",

@@ -24,8 +24,8 @@ const { Content } = await render(project);
 const { client, stack, summary, title, year } = project.data;
 ---
 
-<BaseLayout description={summary} title={`${title} — Floating Point Labs`} variant="page">
-  <main class="page">
+<BaseLayout description={summary} title={title} variant="page">
+  <div class="page">
     <header class="page__header">
       <p class="page__eyebrow">Case study</p>
       <h1 class="page__title">{title}</h1>
@@ -65,5 +65,5 @@ const { client, stack, summary, title, year } = project.data;
         </svg>
       </a>
     </section>
-  </main>
+  </div>
 </BaseLayout>

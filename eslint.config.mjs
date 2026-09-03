@@ -10,5 +10,20 @@ export default [
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
   perfectionist.configs["recommended-natural"],
+  /*
+   * Build scripts run in Node, not the browser — without this they trip
+   * no-undef on `Buffer`, `console`, and `process`.
+   */
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        Buffer: "readonly",
+        console: "readonly",
+        process: "readonly",
+        URL: "readonly"
+      }
+    }
+  },
   prettier
 ];

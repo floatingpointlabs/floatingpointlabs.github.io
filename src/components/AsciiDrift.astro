@@ -3,6 +3,8 @@
 ---
 
 <script>
+  import { readMonoStack, readPalette } from "../lib/theme";
+
   // Purely decorative ambient motion — skip entirely for reduced-motion users.
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!prefersReducedMotion) {
@@ -35,9 +37,9 @@
     resize();
     window.addEventListener("resize", resize);
 
-    const palette = ["#a78bfa", "#818cf8", "#c4b5fd", "#6366f1", "#8b5cf6"];
+    const palette = readPalette();
     const glyphs = ".:-=+*#%@";
-    const fontStack = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace';
+    const fontStack = readMonoStack();
 
     const drifters = Array.from({ length: 18 }, () => ({
       baseAlpha: 0.16 + Math.random() * 0.16,

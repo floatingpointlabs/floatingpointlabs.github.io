@@ -1,5 +1,6 @@
 import { glob } from "astro/loaders";
-import { defineCollection, z } from "astro:content";
+import { z } from "astro/zod";
+import { defineCollection } from "astro:content";
 
 /*
  * Both collections ship empty on purpose. The schemas and routes exist so real
@@ -30,7 +31,7 @@ const projects = defineCollection({
 const team = defineCollection({
   loader: glob({ base: "./src/content/team", pattern: TEMPLATES_EXCLUDED }),
   schema: z.object({
-    links: z.array(z.object({ href: z.string().url(), label: z.string() })).default([]),
+    links: z.array(z.object({ href: z.url(), label: z.string() })).default([]),
     name: z.string(),
     order: z.number().default(0),
     role: z.string()

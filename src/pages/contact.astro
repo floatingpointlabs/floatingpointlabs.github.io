@@ -1,15 +1,16 @@
 ---
 import SectionHeader from "../components/SectionHeader.astro";
+import { SITE } from "../config/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const email = "hello@floatingpointlabs.ca";
+const email = SITE.email;
 ---
 
 <BaseLayout
   description="Get in touch with Floating Point Labs. We're open to new engagements and always happy to chat about upcoming work."
-  title="Contact — Floating Point Labs"
+  title="Contact"
   variant="page">
-  <main class="page">
+  <div class="page">
     <header class="page__header">
       <p class="page__eyebrow">Contact</p>
       <h1 class="page__title">Let's talk</h1>
@@ -37,5 +38,5 @@ const email = "hello@floatingpointlabs.ca";
         </a>
       </div>
     </section>
-  </main>
+  </div>
 </BaseLayout>
