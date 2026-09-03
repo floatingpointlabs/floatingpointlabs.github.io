@@ -1,0 +1,15 @@
+---
+/** Numbered section heading — `01 / WHAT WE DO` — used across inner pages. */
+interface Props {
+  id?: string;
+  index?: string;
+  title: string;
+}
+
+const { id, index, title } = Astro.props;
+---
+
+<div class="section-header">
+  {index && <span class="section-header__index">{index}</span>}
+  <h2 class="section__title" id={id}>{title}</h2>
+</div>

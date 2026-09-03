@@ -1,7 +1,10 @@
 ---
+import Ascii from "../components/Ascii.astro";
 import Hero from "../components/Hero.astro";
 import LogoImpact from "../components/LogoImpact.astro";
+import { services } from "../data/services";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { renderField } from "../lib/ascii";
 
 const previews = [
   {
@@ -9,6 +12,7 @@ const previews = [
     cta: "Read about us",
     eyebrow: "About",
     href: "/about",
+    index: "01",
     title: "A small studio for thoughtful software"
   },
   {
@@ -16,6 +20,7 @@ const previews = [
     cta: "Explore services",
     eyebrow: "Services",
     href: "/services",
+    index: "02",
     title: "Engagements built around your stage"
   },
   {
@@ -23,18 +28,29 @@ const previews = [
     cta: "See our work",
     eyebrow: "Projects",
     href: "/projects",
+    index: "03",
     title: "Selected work"
   }
 ];
+
+// Sized to overfill the band: at 0.8rem with a 1.05 line-height each row is
+// ~13px, so this covers ~320px of height and is clipped to fit rather than
+// stopping partway down.
+const bandTexture = renderField({ cols: 120, density: 0.1, rows: 24, seed: 24 });
 ---
 
 <BaseLayout>
   <Hero />
   <div class="home-previews">
     {
-      previews.map(({ body, cta, eyebrow, href, title }) => (
+      previews.map(({ body, cta, eyebrow, href, index, title }) => (
         <section class="home-preview">
-          <p class="home-preview__eyebrow">{eyebrow}</p>
+          <p class="home-preview__eyebrow">
+            <span aria-hidden="true" class="home-preview__index">
+              {index}
+            </span>
+            {eyebrow}
+          </p>
           <h2 class="home-preview__title">{title}</h2>
           <p class="home-preview__body">{body}</p>
           <a class="home-preview__cta" href={href}>
@@ -52,6 +68,43 @@ const previews = [
         </section>
       ))
     }
+
+    <section class="home-preview">
+      <p class="home-preview__eyebrow">
+        <span aria-hidden="true" class="home-preview__index">04</span>
+        Capabilities
+      </p>
+      <h2 class="home-preview__title">What we take on</h2>
+      <div class="card-grid">
+        {
+          services.map(({ body, focus, index, title }) => (
+            <article class="panel">
+              <p class="panel__label">
+                <span aria-hidden="true">{index}</span>
+                {title}
+              </p>
+              <p class="panel__body">{body}</p>
+              <div class="tag-row">
+                {focus.map((item) => (
+                  <span class="tag">{item}</span>
+                ))}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <Ascii class="ascii-field" lines={bandTexture} />
+      <div class="cta-band__inner">
+        <h2 class="cta-band__title">Have something you're trying to ship?</h2>
+        <p class="cta-band__body">
+          We're open to new engagements and always happy to chat about upcoming work.
+        </p>
+        <a class="btn btn--primary" href="/contact">Get in touch</a>
+      </div>
+    </section>
   </div>
   <LogoImpact />
 </BaseLayout>

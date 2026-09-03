@@ -1,0 +1,49 @@
+name: CI
+
+# deploy.yml only runs after a merge to main, so nothing verified a pull
+# request. Lefthook covers lint and format locally but any `--no-verify`
+# bypasses it, and it never ran a build or a type check at all.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Version comes from the `packageManager` field in package.json.
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 22
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint and format
+        run: pnpm check
+
+      # Covers .astro files, which eslint's parser does not type-check.
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # Fails if any token drops below the WCAG floor.
+      - name: Contrast
+        run: pnpm contrast
+
+      - name: Build
+        run: pnpm build

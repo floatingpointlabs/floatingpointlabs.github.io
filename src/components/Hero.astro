@@ -1,14 +1,34 @@
 ---
-import Logo from "./Logo.astro";
+import { renderMark } from "../lib/ascii";
+import Ascii from "./Ascii.astro";
 import Wordmark from "./Wordmark.astro";
+
+/*
+ * The mark is character art rasterised from the logo's own geometry, painted as
+ * the hero itself with the wordmark layered in front.
+ *
+ * The wave and dot come back as separate layers so the dot can still drop and
+ * land while the wave draws itself in. Both sit on the same grid, so stacking
+ * them reassembles the mark with no alignment work.
+ */
+const { dot, dotCell, wave } = renderMark();
 ---
 
 <section class="hero">
-  <Logo />
-  <h1><Wordmark /></h1>
-  <p>Thoughtful software, built with care.</p>
-  <div class="hero-cta">
-    <a class="btn btn--primary" href="/services">Our services</a>
-    <a class="btn btn--ghost" href="/projects">See our work</a>
+  <div
+    class="hero__art"
+    data-dot-col={dotCell.col.toFixed(3)}
+    data-dot-row={dotCell.row.toFixed(3)}>
+    <Ascii class="hero__wave" lines={wave} />
+    <Ascii class="hero__dot" lines={dot} />
+  </div>
+
+  <div class="hero__content">
+    <h1><Wordmark /></h1>
+    <p class="hero__tagline">Thoughtful software, built with care.</p>
+    <div class="hero-cta">
+      <a class="btn btn--primary" href="/services">Our services</a>
+      <a class="btn btn--ghost" href="/projects">See our work</a>
+    </div>
   </div>
 </section>

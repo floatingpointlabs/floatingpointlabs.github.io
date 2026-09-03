@@ -1,12 +1,16 @@
 ---
+import SectionHeader from "../components/SectionHeader.astro";
+import { SITE } from "../config/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const email = SITE.email;
 ---
 
 <BaseLayout
   description="Get in touch with Floating Point Labs. We're open to new engagements and always happy to chat about upcoming work."
-  title="Contact — Floating Point Labs"
+  title="Contact"
   variant="page">
-  <main class="page">
+  <div class="page">
     <header class="page__header">
       <p class="page__eyebrow">Contact</p>
       <h1 class="page__title">Let's talk</h1>
@@ -17,18 +21,22 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </header>
 
     <section class="section">
-      <a class="home-preview__cta" href="mailto:hello@floatingpointlabs.ca">
-        hello@floatingpointlabs.ca
-        <svg aria-hidden="true" fill="none" viewBox="0 0 16 16">
-          <path
-            d="M3 8h10m0 0L9 4m4 4l-4 4"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.75">
-          </path>
-        </svg>
-      </a>
+      <SectionHeader index="01" title="Email" />
+      <div class="panel">
+        <p class="panel__label">Direct</p>
+        <a class="home-preview__cta" href={`mailto:${email}`}>
+          {email}
+          <svg aria-hidden="true" fill="none" viewBox="0 0 16 16">
+            <path
+              d="M3 8h10m0 0L9 4m4 4l-4 4"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75">
+            </path>
+          </svg>
+        </a>
+      </div>
     </section>
-  </main>
+  </div>
 </BaseLayout>

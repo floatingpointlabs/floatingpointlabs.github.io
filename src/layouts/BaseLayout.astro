@@ -1,56 +1,86 @@
 ---
+import { Font } from "astro:assets";
+
+import AsciiDrift from "../components/AsciiDrift.astro";
 import BackgroundGrid from "../components/BackgroundGrid.astro";
 import Footer from "../components/Footer.astro";
-import GlowDots from "../components/GlowDots.astro";
 import Nav from "../components/Nav.astro";
+import { SITE } from "../config/site";
 import "../styles/global.css";
 
 interface Props {
   description?: string;
+  /** Page name only — the site suffix is appended here, not by each page. */
   title?: string;
   variant?: "landing" | "page";
 }
 
-const {
-  description = "Floating Point Labs is a small software studio building thoughtful, reliable software for teams that care about craft and clarity.",
-  title = "Floating Point Labs",
-  variant = "landing"
-} = Astro.props;
+const { description = SITE.description, title, variant = "landing" } = Astro.props;
+
+/* The homepage is the brand name alone; every other page gets the suffix. */
+const pageTitle = title ? `${title} — ${SITE.name}` : SITE.name;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = new URL("/assets/logo-square-with-background.png", Astro.site);
+const ogImage = new URL(SITE.ogImage, Astro.site);
+
+/*
+ * Only asserts things that are actually known. No founding date, address, or
+ * `sameAs` profiles — an Organization record with invented details is worse
+ * than a minimal accurate one.
+ */
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@id": `${SITE.url}/#organization`,
+  "@type": "ProfessionalService",
+  description: SITE.description,
+  email: SITE.email,
+  legalName: SITE.legalName,
+  logo: new URL(SITE.logo, Astro.site).href,
+  name: SITE.name,
+  url: SITE.url
+};
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en-CA">
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>{title}</title>
+    <title>{pageTitle}</title>
     <meta content={description} name="description" />
     <link href={canonical} rel="canonical" />
 
     <!-- Open Graph -->
     <meta content="website" property="og:type" />
-    <meta content="Floating Point Labs" property="og:site_name" />
-    <meta content={title} property="og:title" />
+    <meta content={SITE.name} property="og:site_name" />
+    <meta content="en_CA" property="og:locale" />
+    <meta content={pageTitle} property="og:title" />
     <meta content={description} property="og:description" />
     <meta content={canonical} property="og:url" />
     <meta content={ogImage} property="og:image" />
+    <meta content="1200" property="og:image:width" />
+    <meta content="630" property="og:image:height" />
+    <meta content={SITE.ogImageAlt} property="og:image:alt" />
 
-    <!-- Twitter — `summary` suits the square logo; swap to a 1200x630 image + summary_large_image later -->
-    <meta content="summary" name="twitter:card" />
-    <meta content={title} name="twitter:title" />
+    <meta content="summary_large_image" name="twitter:card" />
+    <meta content={pageTitle} name="twitter:title" />
     <meta content={description} name="twitter:description" />
     <meta content={ogImage} name="twitter:image" />
+    <meta content={SITE.ogImageAlt} name="twitter:image:alt" />
 
     <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;700;800&family=Anek+Telugu:wght@700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="/sitemap-index.xml" rel="sitemap" type="application/xml" />
+
+    <script is:inline set:html={JSON.stringify(organizationSchema)} type="application/ld+json" />
+
+    {
+      /* Self-hosted — see the `fonts` block in astro.config.mjs. Only the mono
+        and display faces are preloaded: both paint above the fold on every
+        page, while the body face backs a single declaration. */
+    }
+    <Font cssVariable="--font-geist-mono" preload />
+    <Font cssVariable="--font-anek-telugu" preload />
+    <Font cssVariable="--font-geist" />
   </head>
   <body class:list={[`variant-${variant}`]}>
     <script is:inline>
@@ -69,11 +99,11 @@ const ogImage = new URL("/assets/logo-square-with-background.png", Astro.site);
     </script>
     <a class="skip-link" href="#main">Skip to content</a>
     <BackgroundGrid />
-    <GlowDots />
+    <AsciiDrift />
     <Nav />
-    <div id="main" tabindex="-1">
+    <main id="main" tabindex="-1">
       <slot />
-    </div>
+    </main>
     <Footer />
   </body>
 </html>

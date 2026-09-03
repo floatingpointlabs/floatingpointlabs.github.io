@@ -1,12 +1,15 @@
 ---
+import { MAILTO, SITE } from "../config/site";
 
+/* Resolved at build time, so a redeploy keeps it current. */
+const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="site-footer__inner">
-    <span>&copy; 2026 Floating Point Labs Inc.</span>
-    <a class="site-footer__email" href="mailto:hello@floatingpointlabs.ca">
-      hello@floatingpointlabs.ca
+    <span>&copy; {year} {SITE.legalName}</span>
+    <a class="site-footer__email" href={MAILTO}>
+      {SITE.email}
     </a>
   </div>
 </footer>

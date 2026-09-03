@@ -1,12 +1,17 @@
 ---
+import { getCollection } from "astro:content";
+
+import SectionHeader from "../components/SectionHeader.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout
   description="Selected work from Floating Point Labs. Case studies of recent software engagements are coming soon."
-  title="Projects — Floating Point Labs"
+  title="Projects"
   variant="page">
-  <main class="page">
+  <div class="page">
     <header class="page__header">
       <p class="page__eyebrow">Projects</p>
       <h1 class="page__title">Selected work</h1>
@@ -14,14 +19,44 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </header>
 
     <section class="section">
-      <div class="empty-state">
-        <p class="empty-state__title">Case studies are on the way</p>
-        <p class="empty-state__body">
-          We're writing up recent engagements — the software we've shipped, who it helped, and how.
-          In the meantime, <a href="/contact">get in touch</a> and we'll happily walk you through what
-          we've been building.
-        </p>
-      </div>
+      <SectionHeader index="01" title="Case studies" />
+      {
+        projects.length > 0 ? (
+          <ul class="project-list">
+            {projects.map((project, i) => (
+              <li>
+                <a class="project-card" href={`/projects/${project.id}`}>
+                  <article class="panel">
+                    <p class="panel__label">
+                      <span aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                      {project.data.client ?? "Case study"}
+                      {project.data.year && <span>{project.data.year}</span>}
+                    </p>
+                    <h2 class="panel__title">{project.data.title}</h2>
+                    <p class="panel__body">{project.data.summary}</p>
+                    {project.data.stack.length > 0 && (
+                      <div class="tag-row">
+                        {project.data.stack.map((item) => (
+                          <span class="tag">{item}</span>
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="empty-state">
+            <p class="empty-state__title">Case studies are on the way</p>
+            <p class="empty-state__body">
+              We're writing up recent engagements — the software we've shipped, who it helped, and
+              how. In the meantime, <a href="/contact">get in touch</a> and we'll happily walk you
+              through what we've been building.
+            </p>
+          </div>
+        )
+      }
     </section>
-  </main>
+  </div>
 </BaseLayout>

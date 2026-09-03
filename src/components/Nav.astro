@@ -1,15 +1,10 @@
 ---
+import { SITE } from "../config/site";
 import Wordmark from "./Wordmark.astro";
 
 const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
 
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/services", label: "Services" },
-  { href: "/projects", label: "Projects" },
-  { href: "/contact", label: "Contact" }
-];
+const links = SITE.nav;
 
 const isActive = (href: string) =>
   href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
@@ -25,12 +20,12 @@ const isActive = (href: string) =>
       xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="nav-wave-grad" x1="0%" x2="100%" y1="0%" y2="0%">
-          <stop offset="0%" stop-color="#6366f1"></stop>
-          <stop offset="100%" stop-color="#a78bfa"></stop>
+          <stop offset="0%" stop-color="var(--color-accent-1)"></stop>
+          <stop offset="100%" stop-color="var(--color-accent-2)"></stop>
         </linearGradient>
         <radialGradient cx="38%" cy="32%" id="nav-dot-grad" r="65%">
-          <stop offset="0%" stop-color="#b89cf7"></stop>
-          <stop offset="100%" stop-color="#7c3aed"></stop>
+          <stop offset="0%" stop-color="var(--brand-350)"></stop>
+          <stop offset="100%" stop-color="var(--violet-600)"></stop>
         </radialGradient>
       </defs>
       <path
@@ -46,12 +41,15 @@ const isActive = (href: string) =>
   </a>
   <ul class="site-nav__links">
     {
-      links.map(({ href, label }) => (
+      links.map(({ href, index, label }) => (
         <li>
           <a
             aria-current={isActive(href) ? "page" : undefined}
             class:list={["site-nav__link", { "is-active": isActive(href) }]}
             href={href}>
+            <span aria-hidden="true" class="site-nav__index">
+              {index}
+            </span>
             {label}
           </a>
         </li>
