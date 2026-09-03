@@ -1,0 +1,67 @@
+---
+import type { Locale } from "../config/site";
+
+import { DEFAULT_LOCALE, LOCALE_TAG, LOCALES, ogLocale, SITE } from "../config/site";
+import { pathFor, stripLocale } from "../i18n";
+
+interface Props {
+  description: string;
+  lang: Locale;
+  title: string;
+}
+
+const { description, lang, title } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(SITE.ogImage, Astro.site);
+
+const bare = stripLocale(Astro.url.pathname);
+const alternates = LOCALES.map((locale) => ({
+  href: new URL(pathFor(locale, bare), Astro.site),
+  hreflang: LOCALE_TAG[locale]
+}));
+
+/*
+ * Deliberately omits `address`, `telephone`, `foundingDate` and `sameAs`:
+ * asserting unverified details about the business in structured data is worse
+ * than omitting them, and Google treats contradictions harshly.
+ */
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  areaServed: { "@type": "Country", name: "Canada" },
+  description,
+  email: SITE.email,
+  knowsLanguage: LOCALES.map((locale) => LOCALE_TAG[locale]),
+  legalName: SITE.legalName,
+  logo: new URL(SITE.logo, Astro.site).href,
+  name: SITE.name,
+  url: SITE.url
+};
+---
+
+<title>{title}</title>
+<meta content={description} name="description" />
+<link href={canonical} rel="canonical" />
+
+{alternates.map(({ href, hreflang }) => <link href={href} hreflang={hreflang} rel="alternate" />)}
+<link
+  href={new URL(pathFor(DEFAULT_LOCALE, bare), Astro.site)}
+  hreflang="x-default"
+  rel="alternate"
+/>
+
+<meta content="website" property="og:type" />
+<meta content={SITE.name} property="og:site_name" />
+<meta content={title} property="og:title" />
+<meta content={description} property="og:description" />
+<meta content={canonical} property="og:url" />
+<meta content={ogImage} property="og:image" />
+<meta content={ogLocale(lang)} property="og:locale" />
+
+<meta content="summary" name="twitter:card" />
+<meta content={title} name="twitter:title" />
+<meta content={description} name="twitter:description" />
+<meta content={ogImage} name="twitter:image" />
+
+<script is:inline set:html={JSON.stringify(structuredData)} type="application/ld+json" />

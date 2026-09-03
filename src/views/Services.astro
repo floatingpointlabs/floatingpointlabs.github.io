@@ -1,0 +1,73 @@
+---
+import type { Locale } from "../config/site";
+
+import CtaBand from "../components/CtaBand.astro";
+import ServiceCard from "../components/ServiceCard.astro";
+import SourceNote from "../components/SourceNote.astro";
+import { LOCALE_TAG } from "../config/site";
+import { FUNDING_PROGRAMS, SERVICES, SOURCES } from "../data/strategy";
+import { getCopy } from "../i18n";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+
+const money = new Intl.NumberFormat(LOCALE_TAG[lang], {
+  currency: "CAD",
+  maximumFractionDigits: 0,
+  notation: "compact",
+  style: "currency"
+});
+---
+
+<BaseLayout
+  description={copy.meta.services.description}
+  lang={lang}
+  title={copy.meta.services.title}>
+  <section class="section shell">
+    <p class="eyebrow">{copy.services.intro.eyebrow}</p>
+    <h1 class="section__title">{copy.services.intro.title}</h1>
+    <p class="section__lede">{copy.services.intro.lede}</p>
+
+    <div class="service-grid">
+      {SERVICES.map((service) => <ServiceCard lang={lang} service={service} />)}
+    </div>
+
+    <p class="source-note">{copy.services.barriersNote}</p>
+  </section>
+
+  <section class="section shell">
+    <h2 class="section__title">{copy.services.funding.title}</h2>
+    <p class="section__lede">{copy.services.funding.body}</p>
+
+    <div class="funding-grid">
+      {
+        FUNDING_PROGRAMS.map((program) => {
+          const text = copy.services.funding.programs[program.id];
+          return (
+            <article class="panel">
+              <p class="funding__label">{text.label}</p>
+              {program.amountCad !== null && (
+                <p class="funding__amount">
+                  {money.format(program.amountCad)}
+                  {program.through !== null && ` · ${program.through}`}
+                </p>
+              )}
+              <p class="funding__body">{text.body}</p>
+            </article>
+          );
+        })
+      }
+    </div>
+
+    <p class="disclaimer">{copy.services.funding.disclaimer}</p>
+
+    <SourceNote lang={lang} source={SOURCES.aiForAll} />
+  </section>
+
+  <CtaBand lang={lang} />
+</BaseLayout>

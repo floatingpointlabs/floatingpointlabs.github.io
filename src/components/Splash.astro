@@ -1,0 +1,184 @@
+---
+/**
+ * Full-viewport intro overlay: the mark lands on the wave, the wordmark
+ * arrives, and the whole thing dissolves into the homepage.
+ *
+ * Shown on the first homepage view of a session only. Decorative, so it is
+ * `aria-hidden` — the same lockup sits in the nav immediately below.
+ *
+ * The impact beat lives here rather than in a separate component mounted by
+ * the page: it only ever fires while this overlay is on screen, so splitting
+ * the two halves across files just made the effect harder to follow.
+ */
+import Brand from "./Brand.astro";
+---
+
+<script is:inline>
+  // Sets the class before the overlay below is parsed, so it is in place for
+  // first paint — bundled, the splash would flash before being hidden on a
+  // repeat visit. This component only renders on the landing page, so no page
+  // guard is needed. The literal below is `SPLASH_PLAYING_CLASS`; an inline
+  // script cannot import, since it must run before the bundle loads.
+  try {
+    if (!sessionStorage.getItem("fpl-splash-seen")) {
+      sessionStorage.setItem("fpl-splash-seen", "1");
+      document.body.classList.add("splash-play");
+    }
+  } catch {
+    // Storage blocked — play the splash rather than suppress it.
+    document.body.classList.add("splash-play");
+  }
+</script>
+
+<div aria-hidden="true" class="splash">
+  <Brand class="splash__brand" idPrefix="splash" orientation="vertical" />
+</div>
+
+<script>
+  /*
+   * The splash contract, duplicated rather than imported from a shared module.
+   * Astro inlines a component script only while it has no imports; sharing
+   * these few lines made it emit three separate JS files instead, so every
+   * page paid network round trips to deduplicate ~260 bytes.
+   *
+   * Kept in sync with `.splash-play` in global.css and the inline bootstrap in
+   * Splash.astro.
+   */
+  const SPLASH_PLAYING_CLASS = "splash-play";
+  const SPLASH_END_EVENT = "fpl:splash-end";
+
+  /*
+   * Reads a CSS time token (`2.4s`, `240ms`) as milliseconds, so the beats
+   * below stay tied to the choreography in global.css rather than restating
+   * it. `fallback` matters: a missing token would otherwise yield 0 and fire
+   * the beat immediately, which looks like a bug rather than a missing token.
+   */
+  function cssTimeMs(token: string, fallback: number): number {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+    const value = Number.parseFloat(raw);
+
+    if (!Number.isFinite(value)) return fallback;
+    if (raw.endsWith("ms")) return value;
+    if (raw.endsWith("s")) return value * 1000;
+    return fallback;
+  }
+
+  const body = document.body;
+
+  function createFlash(x: number, y: number) {
+    const el = document.createElement("div");
+    Object.assign(el.style, {
+      background:
+        "radial-gradient(circle, rgba(139,92,246,0.45) 0%, rgba(99,102,241,0.18) 35%, transparent 70%)",
+      borderRadius: "50%",
+      height: "500px",
+      left: x + "px",
+      pointerEvents: "none",
+      position: "fixed",
+      top: y + "px",
+      transform: "translate(-50%, -50%) scale(0)",
+      width: "500px",
+      zIndex: "40"
+    });
+    body.appendChild(el);
+    el.animate(
+      [
+        { opacity: 1, transform: "translate(-50%, -50%) scale(0)" },
+        { offset: 0.18, opacity: 0.9, transform: "translate(-50%, -50%) scale(1)" },
+        { opacity: 0, transform: "translate(-50%, -50%) scale(1.6)" }
+      ],
+      { duration: 900, easing: "ease-out", fill: "forwards" }
+    ).onfinish = () => el.remove();
+  }
+
+  function fireImpact() {
+    // The visitor may have skipped while this was pending — the flash and
+    // particles would otherwise burst over the live page.
+    if (!body.classList.contains(SPLASH_PLAYING_CLASS)) return;
+
+    const mark = document.querySelector(".splash .brand__mark");
+    const dot = mark?.querySelector(".logo__dot");
+    if (!mark || !dot) return;
+
+    const rect = dot.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    shakeMark(mark);
+    createFlash(cx, cy);
+    spawnParticles(cx, cy);
+  }
+
+  function shakeMark(mark: Element) {
+    mark.animate(
+      [
+        { transform: "translate(0, 0)" },
+        { transform: "translate(-3px, 2px)" },
+        { transform: "translate(3px, -2px)" },
+        { transform: "translate(-2px, 1px)" },
+        { transform: "translate(1px, -1px)" },
+        { transform: "translate(0, 0)" }
+      ],
+      { duration: 280, easing: "ease-out" }
+    );
+  }
+
+  function spawnParticles(x: number, y: number) {
+    const palette = ["#8b5cf6", "#6366f1", "#a78bfa", "#c4b5fd", "#7c3aed", "#818cf8"];
+    const count = 14;
+
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement("div");
+      const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+      const dist = 28 + Math.random() * 48;
+      const size = 2 + Math.random() * 2.5;
+      Object.assign(el.style, {
+        background: palette[i % palette.length],
+        borderRadius: "50%",
+        height: size + "px",
+        left: x + "px",
+        pointerEvents: "none",
+        position: "fixed",
+        top: y + "px",
+        width: size + "px",
+        zIndex: "60"
+      });
+      body.appendChild(el);
+
+      const tx = Math.cos(angle) * dist;
+      const ty = Math.sin(angle) * dist;
+      el.animate(
+        [
+          { opacity: 1, transform: "translate(-50%, -50%)" },
+          { opacity: 0, transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))` }
+        ],
+        {
+          duration: 480 + Math.random() * 320,
+          easing: "cubic-bezier(0.2, 0.6, 0.4, 1)",
+          fill: "forwards"
+        }
+      ).onfinish = () => el.remove();
+    }
+  }
+
+  if (body.classList.contains(SPLASH_PLAYING_CLASS)) {
+    // Any deliberate input clears the splash early. Dropping the class hides
+    // the overlay *and* un-gates the page's own reveal in one step, so a skip
+    // lands on fully visible content rather than part-way through a fade.
+    const dismiss = () => {
+      body.classList.remove(SPLASH_PLAYING_CLASS);
+      // Lets the ambient canvas start with the rest of the atmosphere instead
+      // of waiting out a timer sized for the full splash.
+      window.dispatchEvent(new CustomEvent(SPLASH_END_EVENT));
+    };
+    const options = { once: true, passive: true };
+
+    for (const event of ["pointerdown", "keydown", "wheel", "touchstart"]) {
+      window.addEventListener(event, dismiss, options);
+    }
+
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setTimeout(fireImpact, cssTimeMs("--splash-impact-at", 1760));
+    }
+  }
+</script>

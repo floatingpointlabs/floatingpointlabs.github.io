@@ -1,0 +1,33 @@
+---
+import type { Locale } from "../config/site";
+
+import ContactForm from "../components/ContactForm.astro";
+import { MAILTO, SITE } from "../config/site";
+import { getCopy } from "../i18n";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+---
+
+<BaseLayout description={copy.meta.contact.description} lang={lang} title={copy.meta.contact.title}>
+  <section class="section shell">
+    <p class="eyebrow">{copy.nav.contact}</p>
+    <h1 class="section__title">{copy.contact.title}</h1>
+    <p class="section__lede">{copy.contact.lede}</p>
+
+    <div class="contact-layout">
+      <ContactForm lang={lang} />
+
+      <aside class="contact-aside">
+        <h2 class="contact-aside__title">{copy.contact.email.label}</h2>
+        <p class="contact-aside__body">{copy.contact.email.body}</p>
+        <a class="contact-aside__email" href={MAILTO}>{SITE.email}</a>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

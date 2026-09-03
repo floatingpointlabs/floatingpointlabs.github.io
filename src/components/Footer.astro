@@ -1,5 +1,26 @@
 ---
+import type { Locale } from "../config/site";
 
+import { MAILTO, SITE } from "../config/site";
+import { getCopy } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+const year = new Date().getFullYear();
 ---
 
-<footer>&copy; 2026 Floating Point Labs Inc.</footer>
+<footer class="site-footer">
+  <div class="shell">
+    <p class="site-footer__line">
+      &copy; {year}
+      {SITE.legalName}
+      {copy.footer.rights}
+      <a class="site-footer__email" href={MAILTO}>{SITE.email}</a>
+    </p>
+    <p class="site-footer__note">{copy.footer.sourcesNote}</p>
+  </div>
+</footer>

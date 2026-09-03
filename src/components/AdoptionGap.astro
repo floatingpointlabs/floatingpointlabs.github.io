@@ -1,0 +1,52 @@
+---
+import type { Locale } from "../config/site";
+
+import { LOCALE_TAG } from "../config/site";
+import { ADOPTION_GAP, SOURCES } from "../data/strategy";
+import { getCopy } from "../i18n";
+import SourceNote from "./SourceNote.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+const gap = copy.home.adoptionGap;
+
+// Intl handles the French convention of a non-breaking space before the sign,
+// so that rule lives in one place instead of being hand-written here.
+const percent = new Intl.NumberFormat(LOCALE_TAG[lang], { style: "percent" });
+
+const rows = [
+  { label: gap.currentLabel, modifier: "current", value: ADOPTION_GAP.currentPct },
+  { label: gap.targetLabel, modifier: "target", value: ADOPTION_GAP.targetPct }
+];
+---
+
+<figure class="panel adoption">
+  <figcaption class="adoption__title">{gap.title}</figcaption>
+
+  <p class="sr-only">{gap.srDescription}</p>
+
+  <div aria-hidden="true" class="adoption__rows">
+    {
+      rows.map(({ label, modifier, value }) => (
+        <div class:list={["adoption__row", `adoption__row--${modifier}`]}>
+          <p class="adoption__value">{percent.format(value / 100)}</p>
+          <p class="adoption__label">{label}</p>
+          <div class="adoption__track">
+            <span class="adoption__fill" style={`--pct: ${value}%`} />
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <SourceNote
+    class="adoption__caption"
+    lang={lang}
+    lead={gap.caption}
+    source={SOURCES[ADOPTION_GAP.sourceId]}
+  />
+</figure>

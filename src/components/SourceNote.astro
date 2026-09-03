@@ -1,0 +1,33 @@
+---
+import type { Locale } from "../config/site";
+import type { Source } from "../data/strategy";
+
+import { getCopy } from "../i18n";
+
+/**
+ * A citation line. Every rendered statistic on the site carries one, so how a
+ * source is attributed — punctuation, link attributes, the trailing publisher
+ * — is defined here once rather than retyped at each call site.
+ */
+
+interface Props {
+  class?: string;
+  lang: Locale;
+  /** Replaces the default "Source:" lead-in. */
+  lead?: string;
+  source: Source;
+}
+
+const { class: className = "source-note", lang, lead, source } = Astro.props;
+const copy = getCopy(lang);
+
+// The separating spaces live inside these strings rather than between JSX
+// nodes: a literal space between an expression and an adjacent element is
+// dropped, and the formatter is free to move the nodes onto separate lines.
+const leadText = `${lead ?? `${copy.common.sourceLabel}:`} `;
+const tail = `, ${source.publisher}.`;
+---
+
+<p class={className}>
+  {leadText}<a href={source.url} rel="noopener" target="_blank">{source.title}</a>{tail}
+</p>

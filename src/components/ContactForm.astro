@@ -1,0 +1,104 @@
+---
+import type { Locale } from "../config/site";
+
+import { SITE } from "../config/site";
+import { STAGE_IDS } from "../data/strategy";
+import { getCopy } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+const form = copy.contact.form;
+
+/*
+ * Until SITE.formEndpoint holds a real Formspree id the form is rendered
+ * disabled behind an explicit notice. A form that looks live but silently
+ * discards submissions is worse than no form: the visitor believes they have
+ * made contact and never follows up.
+ */
+const isLive = SITE.formEndpoint.length > 0;
+const action = isLive ? `https://formspree.io/f/${SITE.formEndpoint}` : undefined;
+---
+
+<div class="form-panel">
+  {!isLive && <p class="form-notice">{form.formUnavailable}</p>}
+
+  <form action={action} method="post">
+    <div class="field-row">
+      <p class="field">
+        <label class="field__label" for="name">{form.nameLabel}</label>
+        <input autocomplete="name" disabled={!isLive} id="name" name="name" required type="text" />
+      </p>
+      <p class="field">
+        <label class="field__label" for="email">{form.emailLabel}</label>
+        <input
+          autocomplete="email"
+          disabled={!isLive}
+          id="email"
+          name="email"
+          required
+          type="email"
+        />
+      </p>
+    </div>
+
+    <div class="field-row">
+      <p class="field">
+        <label class="field__label" for="company">{form.companyLabel}</label>
+        <input
+          autocomplete="organization"
+          disabled={!isLive}
+          id="company"
+          name="company"
+          type="text"
+        />
+      </p>
+      <p class="field">
+        <label class="field__label" for="size">
+          {form.sizeLabel}
+          <span class="field__optional">({form.optional})</span>
+        </label>
+        <select disabled={!isLive} id="size" name="size">
+          <option value="">—</option>
+          {form.sizeOptions.map((option) => <option value={option}>{option}</option>)}
+        </select>
+      </p>
+    </div>
+
+    <p class="field">
+      <label class="field__label" for="stage">
+        {form.stageLabel}
+        <span class="field__optional">({form.optional})</span>
+      </label>
+      <select disabled={!isLive} id="stage" name="stage">
+        <option value="">{form.stageUnsure}</option>
+        {STAGE_IDS.map((id) => <option value={id}>{copy.stages[id].label}</option>)}
+      </select>
+    </p>
+
+    <p class="field">
+      <label class="field__label" for="message">{form.messageLabel}</label>
+      {
+        /*
+        `set:html=""` rather than an empty tag pair: a textarea's value is its
+        child text, so when the formatter breaks the tag across lines the
+        indentation becomes the value — the box looks empty but satisfies
+        `required` and submits whitespace. set:html makes that impossible.
+      */
+      }
+      <textarea
+        disabled={!isLive}
+        id="message"
+        name="message"
+        placeholder={form.messagePlaceholder}
+        required
+        set:html=""
+      />
+    </p>
+
+    <button class="btn btn--primary" disabled={!isLive} type="submit">{form.submit}</button>
+  </form>
+</div>

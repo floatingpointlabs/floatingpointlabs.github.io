@@ -1,0 +1,49 @@
+---
+import type { Locale } from "../config/site";
+
+import CtaBand from "../components/CtaBand.astro";
+import Hero from "../components/Hero.astro";
+import MaturityLadder from "../components/MaturityLadder.astro";
+import ServiceCard from "../components/ServiceCard.astro";
+import { SERVICES } from "../data/strategy";
+import { getCopy, pathFor } from "../i18n";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+---
+
+<BaseLayout
+  description={copy.meta.home.description}
+  lang={lang}
+  title={copy.meta.home.title}
+  variant="landing">
+  <Hero lang={lang} />
+
+  <section class="section shell">
+    <p class="eyebrow">{copy.home.ladder.eyebrow}</p>
+    <h2 class="section__title">{copy.home.ladder.title}</h2>
+    <p class="section__lede">{copy.home.ladder.lede}</p>
+    <MaturityLadder lang={lang} />
+  </section>
+
+  <section class="section shell">
+    <p class="eyebrow">{copy.home.servicesTeaser.eyebrow}</p>
+    <h2 class="section__title">{copy.home.servicesTeaser.title}</h2>
+    <p class="section__lede">{copy.home.servicesTeaser.lede}</p>
+
+    <div class="service-grid">
+      {SERVICES.map((service) => <ServiceCard compact lang={lang} service={service} />)}
+    </div>
+
+    <p class="more-link">
+      <a href={pathFor(lang, "services")}>{copy.home.servicesTeaser.link} &rarr;</a>
+    </p>
+  </section>
+
+  <CtaBand lang={lang} />
+</BaseLayout>

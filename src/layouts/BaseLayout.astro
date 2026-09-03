@@ -1,28 +1,61 @@
 ---
+import type { Locale } from "../config/site";
+
+import Footer from "../components/Footer.astro";
+import GlowDots from "../components/GlowDots.astro";
+import Nav from "../components/Nav.astro";
+import Seo from "../components/Seo.astro";
+import Splash from "../components/Splash.astro";
+import { LOCALE_TAG, SITE } from "../config/site";
+import { getCopy } from "../i18n";
 import "../styles/global.css";
 
 interface Props {
-  title?: string;
+  description: string;
+  lang: Locale;
+  title: string;
+  /** `landing` carries the intro splash; `page` never does. */
+  variant?: "landing" | "page";
 }
 
-const { title = "Floating Point Labs" } = Astro.props;
+const { description, lang, title, variant = "page" } = Astro.props;
+
+const copy = getCopy(lang);
+const isLanding = variant === "landing";
+
+// The landing page leads with the brand; inner pages lead with the section.
+const fullTitle = isLanding ? `${SITE.name} — ${title}` : `${title} — ${SITE.name}`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={LOCALE_TAG[lang]}>
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>{title}</title>
+    <Seo description={description} lang={lang} title={fullTitle} />
+
     <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;700;800&family=Anek+Telugu:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;700&family=Anek+Telugu:wght@400..700&display=swap"
       rel="stylesheet"
     />
   </head>
+
   <body>
-    <slot />
+    <a class="skip-link" href="#main">{copy.common.skipToContent}</a>
+
+    {isLanding && <Splash />}
+
+    <div class="bg-grid"></div>
+    <GlowDots />
+    <Nav lang={lang} />
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
   </body>
 </html>

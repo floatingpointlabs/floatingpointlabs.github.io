@@ -1,7 +1,38 @@
 ---
-import Logo from "./Logo.astro";
+import type { Locale } from "../config/site";
+
+import { getCopy, pathFor } from "../i18n";
+import AdoptionGap from "./AdoptionGap.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+const { hero } = copy.home;
 ---
 
-<Logo />
-<h1>Floating Point <span>Labs</span></h1>
-<p>Something is in the works. Check back soon.</p>
+{
+  /*
+  No logo here: the splash has just shown the mark and wordmark full-screen,
+  and the nav carries the mark a few pixels above. Repeating it a third time
+  weakens it and pushes the actual positioning line below the fold.
+*/
+}
+<section class="hero shell">
+  <div class="hero__copy">
+    <p class="eyebrow">{hero.eyebrow}</p>
+    <h1 class="hero__title">
+      {hero.title}
+      <span class="hero__title-accent">{hero.titleAccent}</span>
+    </h1>
+    <p class="hero__lede">{hero.lede}</p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" href={pathFor(lang, "contact")}>{copy.cta.label}</a>
+      <a class="btn btn--ghost" href={pathFor(lang, "services")}>{hero.ctaSecondary}</a>
+    </div>
+  </div>
+
+  <AdoptionGap lang={lang} />
+</section>

@@ -1,0 +1,22 @@
+---
+import type { Locale } from "../config/site";
+
+import { getCopy, pathFor } from "../i18n";
+
+/** The closing call to action, shared by every page that ends with one. */
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+---
+
+<section class="section shell">
+  <div class="panel cta-band">
+    <h2 class="cta-band__title">{copy.cta.title}</h2>
+    <p class="cta-band__body">{copy.cta.body}</p>
+    <a class="btn btn--primary" href={pathFor(lang, "contact")}>{copy.cta.label}</a>
+  </div>
+</section>

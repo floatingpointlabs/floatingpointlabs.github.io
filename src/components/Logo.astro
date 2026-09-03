@@ -1,29 +1,57 @@
 ---
+/**
+ * The brand mark: a wave with the floating point landing on it.
+ *
+ * Gradient ids are namespaced by `idPrefix` because the mark renders more than
+ * once per page (nav and hero) and duplicate ids are invalid — and, worse,
+ * make `url(#...)` fills resolve to whichever instance parsed first. Styling
+ * and animation hook onto the classes, never the ids.
+ */
 
+interface Props {
+  class?: string;
+  idPrefix: string;
+}
+
+const { class: className, idPrefix } = Astro.props;
+
+const waveGradient = `${idPrefix}-wave-grad`;
+const dotGradient = `${idPrefix}-dot-grad`;
 ---
 
-<div class="logo-wrap">
-  <svg id="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="wave-grad" x1="0%" x2="100%" y1="0%" y2="0%">
-        <stop offset="0%" stop-color="#6366f1"></stop>
-        <stop offset="100%" stop-color="#a78bfa"></stop>
-      </linearGradient>
-      <radialGradient cx="38%" cy="32%" id="dot-grad" r="65%">
-        <stop offset="0%" stop-color="#b89cf7"></stop>
-        <stop offset="100%" stop-color="#7c3aed"></stop>
-      </radialGradient>
-    </defs>
+<svg
+  aria-hidden="true"
+  class:list={["logo", className]}
+  focusable="false"
+  viewBox="0 0 64 64"
+  xmlns="http://www.w3.org/2000/svg">
+  {
+    /*
+    Literal hex, not var(--indigo): `var()` in an SVG presentation attribute
+    is not reliably supported, and when it fails stop-color falls back to
+    black — the mark would render as a black gradient. These four values are
+    mirrored by the tokens in global.css; change both together.
+  */
+  }
+  <defs>
+    <linearGradient id={waveGradient} x1="0%" x2="100%" y1="0%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1"></stop>
+      <stop offset="100%" stop-color="#a78bfa"></stop>
+    </linearGradient>
+    <radialGradient cx="38%" cy="32%" id={dotGradient} r="65%">
+      <stop offset="0%" stop-color="#b89cf7"></stop>
+      <stop offset="100%" stop-color="#7c3aed"></stop>
+    </radialGradient>
+  </defs>
 
-    <path
-      d="M14 41q8.2-18.8 17.6-11.1t18 .3"
-      fill="none"
-      id="wave-path"
-      stroke="url(#wave-grad)"
-      stroke-linejoin="round"
-      stroke-width="8.8">
-    </path>
+  <path
+    class="logo__wave"
+    d="M14 41q8.2-18.8 17.6-11.1t18 .3"
+    fill="none"
+    stroke={`url(#${waveGradient})`}
+    stroke-linejoin="round"
+    stroke-width="8.8">
+  </path>
 
-    <circle cx="40.8" cy="22.2" fill="url(#dot-grad)" id="dot" r="5.1"></circle>
-  </svg>
-</div>
+  <circle class="logo__dot" cx="40.8" cy="22.2" fill={`url(#${dotGradient})`} r="5.1"></circle>
+</svg>

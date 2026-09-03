@@ -1,0 +1,11 @@
+---
+/*
+ * English only, and deliberately so: GitHub Pages serves a single /404.html
+ * for every unmatched path, including those under /fr/. A French 404 route
+ * would build but would never actually be served, which is worse than one
+ * honest page — the nav on it still offers the language switch.
+ */
+import NotFound from "../views/NotFound.astro";
+---
+
+<NotFound lang="en" />

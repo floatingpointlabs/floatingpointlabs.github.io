@@ -1,0 +1,39 @@
+---
+import type { Locale } from "../config/site";
+
+import { NAV, SITE } from "../config/site";
+import { getCopy, isCurrentPath, pathFor } from "../i18n";
+import Brand from "./Brand.astro";
+import LangSwitch from "./LangSwitch.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+const pathname = Astro.url.pathname;
+---
+
+<nav aria-label={SITE.name} class="site-nav">
+  <Brand class="site-nav__brand" href={pathFor(lang, "")} idPrefix="nav" />
+
+  <ul class="site-nav__links">
+    {
+      NAV.map(({ key, path }) => {
+        const current = isCurrentPath(pathname, path);
+        return (
+          <li>
+            <a
+              aria-current={current ? "page" : undefined}
+              class:list={["site-nav__link", { "is-active": current }]}
+              href={pathFor(lang, path)}>
+              {copy.nav[key]}
+            </a>
+          </li>
+        );
+      })
+    }
+    <li><LangSwitch lang={lang} /></li>
+  </ul>
+</nav>

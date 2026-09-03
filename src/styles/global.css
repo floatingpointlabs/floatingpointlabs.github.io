@@ -1,3 +1,90 @@
+/* ==========================================================================
+   Floating Point Labs — design tokens
+   Extracted from the original splash so the identity has one source of truth
+   instead of hexes re-typed per component.
+   ========================================================================== */
+
+:root {
+  /* Ground and surfaces */
+  --ground: #0a0a0f;
+  --surface: #0d0d1a;
+  --surface-raised: #14142280;
+  --border: rgba(99, 102, 241, 0.18);
+  --border-strong: rgba(99, 102, 241, 0.4);
+
+  /* Text — both values clear WCAG AA on --ground.
+     --text-muted is 7.7:1; the old #64748b was 4.15:1 and failed. */
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+
+  /* Brand ramp */
+  --indigo: #6366f1;
+  --indigo-light: #818cf8;
+  --violet: #a78bfa;
+  --violet-pale: #c4b5fd;
+  --violet-bright: #b89cf7;
+  --purple: #8b5cf6;
+  --purple-deep: #7c3aed;
+  --brand-gradient: linear-gradient(135deg, var(--indigo), var(--violet));
+
+  /* Type */
+  --font-display: "Anek Telugu", "Geist", system-ui, sans-serif;
+  --font-body: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /*
+   * Anek Telugu reads optically heavier as it gets smaller, so display text
+   * steps down a notch below roughly 1.5rem instead of sitting at one weight
+   * everywhere. Loaded as a variable face (wght 400–700), so any value in
+   * that range is real rather than synthesised.
+   */
+  --weight-display: 700;
+  --weight-display-sm: 600;
+
+  /* Metrics */
+  --page-max: 1140px;
+  --measure: 66ch;
+  --gutter: clamp(1.25rem, 5vw, 3rem);
+  --radius: 14px;
+
+  /*
+   * Splash choreography, in order. Every beat is a token so the sequence can
+   * be retimed from this block alone — previously half of it lived here and
+   * half as hardcoded delays on the rules further down.
+   *
+   * 0.40  wave begins drawing
+   * 1.25  dot begins falling — starts just before the wave lands, so the two
+   *       read as one gesture rather than two separate beats
+   * 1.30  wave complete
+   * 1.76  dot meets the wave — impact burst
+   * 2.45  wordmark rises
+   * 3.15  wordmark settled; the sequence holds here
+   * 3.50  overlay begins dissolving; the page beneath starts its own reveal
+   * 4.15  overlay gone
+   * 4.70  page content settled (the ambient grid keeps fading in to ~5.0)
+   */
+  --splash-wave-at: 0.4s;
+  --splash-wave-dur: 0.9s;
+  --splash-dot-at: 1.25s;
+  --splash-dot-dur: 0.85s;
+  /*
+   * The dot first touches the wave at 60% through its fall — see the
+   * `drop-dot` keyframes. Read by Splash.astro to place the impact burst, so
+   * retiming the fall above cannot desync it.
+   */
+  --splash-impact-at: 1.76s;
+  --splash-wordmark-at: 2.45s;
+  --splash-wordmark-dur: 0.7s;
+  /* The pause between the wordmark settling and the dissolve is what stops the
+     sequence feeling rushed; the overlay used to start fading while the
+     wordmark was still arriving. */
+  --splash-out-at: 3.5s;
+  --splash-out-dur: 0.65s;
+  --splash-grid-in: 3.6s;
+  --splash-text-in: 3.8s;
+  --splash-tail: 4.1s;
+}
+
 *,
 *::before,
 *::after {
@@ -6,119 +93,935 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family:
-    "Geist",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    system-ui,
-    sans-serif;
-  background-color: #0a0a0f;
-  color: #e2e8f0;
+  background-color: var(--ground);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem;
-  overflow: hidden;
+  /* No scroll lock, even under the splash overlay: locking would need JS to
+     unlock it again, leaving the page unscrollable if that JS ever failed. A
+     scroll is treated as a request to skip the splash instead. */
 }
 
-/* Vignette so the dot grid fades out at the edges */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, #0a0a0f 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Central glow behind the logo */
-body::before {
-  content: "";
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%);
-  width: 700px;
-  height: 700px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.28) 0%, transparent 65%);
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0;
-  animation: blob-appear 1.4s ease 1.9s forwards;
-}
-
-@keyframes blob-appear {
-  to {
-    opacity: 1;
-  }
-}
+/* ==========================================================================
+   Atmosphere — renders on every page
+   ========================================================================== */
 
 .bg-grid {
-  position: fixed;
-  inset: 0;
-  background-image: radial-gradient(rgba(99, 102, 241, 0.18) 1px, transparent 1px);
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
   background-size: 30px 30px;
+  inset: 0;
   pointer-events: none;
+  position: fixed;
   z-index: 0;
+}
+
+/* Vignette: fades the grid out at the edges. */
+body::after {
+  background: radial-gradient(ellipse 80% 80% at 50% 40%, transparent 35%, var(--ground) 100%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 0;
+}
+
+/* Centre glow, anchored behind the hero. */
+body::before {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.26) 0%, transparent 65%);
+  content: "";
+  height: 700px;
+  left: 50%;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  transform: translate(-50%, -30%);
+  width: 700px;
+  z-index: 0;
+}
+
+.splash-play .bg-grid,
+.splash-play::before,
+.splash-play::after {
+  animation: fade-in 1.4s ease var(--splash-grid-in) forwards;
   opacity: 0;
-  animation: blob-appear 1.4s ease 1.9s forwards;
 }
 
-.logo-wrap {
-  width: 260px;
-  height: 260px;
+/* ==========================================================================
+   Primitives
+   ========================================================================== */
+
+a {
+  color: var(--violet);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--violet-pale);
+}
+
+:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 0 0 var(--radius) 0;
+  color: var(--text);
+  left: 0;
+  padding: 0.75rem 1.25rem;
+  position: fixed;
+  text-decoration: none;
+  top: 0;
+  transform: translateY(-120%);
+  z-index: 100;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* Visually hidden, still announced. Used for the text equivalent of the
+   adoption-gap chart. */
+.sr-only {
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.shell {
+  margin-inline: auto;
+  max-width: var(--page-max);
+  padding-inline: var(--gutter);
   position: relative;
-  z-index: 2;
-}
-
-h1,
-p,
-footer {
-  position: relative;
-  z-index: 2;
-}
-
-#logo {
   width: 100%;
-  height: 100%;
+  z-index: 2;
+}
+
+main {
+  position: relative;
+  z-index: 2;
+}
+
+.eyebrow {
+  color: var(--violet);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.85rem;
+  text-transform: uppercase;
+}
+
+.section {
+  padding-block: clamp(3.5rem, 9vw, 6.5rem);
+}
+
+.section__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.6vw, 2.4rem);
+  font-weight: var(--weight-display);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.section__lede {
+  color: var(--text-muted);
+  margin-top: 1rem;
+  max-width: var(--measure);
+}
+
+.btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.8rem 1.6rem;
+  text-decoration: none;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.btn--primary {
+  background: var(--brand-gradient);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.28);
+  color: #0a0a0f;
+}
+
+.btn--primary:hover {
+  box-shadow: 0 10px 38px rgba(139, 92, 246, 0.45);
+  color: #0a0a0f;
+  transform: translateY(-2px);
+}
+
+.btn--ghost {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.btn--ghost:hover {
+  border-color: var(--violet);
+  color: var(--text);
+  transform: translateY(-2px);
+}
+
+.panel {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.tag {
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--text-muted);
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.7rem;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.source-note {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 1.25rem;
+}
+
+/* A "read more" link closing a section. Distinct from `.source-note`, which
+   the homepage previously borrowed for this. */
+.more-link {
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+/* ==========================================================================
+   Brand lockup — mark + wordmark, see Brand.astro
+   Sizing lives with each placement further down, not here.
+   ========================================================================== */
+
+.logo {
   overflow: visible;
 }
 
-/* Wave draws itself */
-#wave-path {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: draw-wave 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
+.brand {
+  align-items: center;
+  color: var(--text);
+  display: flex;
+  text-decoration: none;
+}
+
+.brand--horizontal {
+  gap: 0.6rem;
+}
+
+.brand--vertical {
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/*
+ * Optical nudge. With `line-height: 1` the lowercase wordmark sits visually
+ * high against the mark when the two are side by side. Expressed in `em` so it
+ * holds at any lockup size (0.135em ≈ the 3px it started as at 1.4rem), and
+ * scoped to the horizontal lockup so the stacked splash version — which has no
+ * mark beside it to align to — is not shifted for no reason.
+ */
+.brand--horizontal .brand__wordmark {
+  position: relative;
+  top: 0.135em;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: var(--weight-display-sm);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+.wordmark__accent {
+  background: var(--brand-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ==========================================================================
+   Navigation
+   ========================================================================== */
+
+.site-nav {
+  align-items: center;
+  backdrop-filter: blur(12px);
+  background: rgba(10, 10, 15, 0.72);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  justify-content: space-between;
+  padding: 0.85rem var(--gutter);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.site-nav__brand .brand__mark {
+  height: 48px;
+  width: 48px;
+}
+
+.site-nav__links {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.4rem;
+  list-style: none;
+}
+
+.site-nav__link {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.site-nav__link:hover,
+.site-nav__link.is-active {
+  color: var(--text);
+}
+
+.site-nav__link.is-active {
+  text-decoration: underline;
+  text-decoration-color: var(--violet);
+  text-underline-offset: 6px;
+}
+
+.lang-switch {
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  text-decoration: none;
+}
+
+.lang-switch:hover {
+  border-color: var(--violet);
+  color: var(--text);
+}
+
+.splash-play .site-nav {
+  animation: fade-in 0.6s ease var(--splash-tail) forwards;
+  opacity: 0;
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+  align-items: center;
+  display: grid;
+  gap: clamp(2rem, 6vw, 4rem);
+  grid-template-columns: 1fr;
+  padding-block: clamp(3rem, 9vw, 6rem);
+}
+
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 3.7rem);
+  font-weight: var(--weight-display);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.hero__title-accent {
+  background: var(--brand-gradient);
+  background-clip: text;
+  display: block;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero__lede {
+  color: var(--text-muted);
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  margin-top: 1.35rem;
+  max-width: 52ch;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 2rem;
+}
+
+/* Staggered so the hero assembles rather than appearing all at once. */
+.splash-play .hero__copy > * {
+  animation: fade-up 0.6s ease var(--splash-text-in) backwards;
+}
+
+.splash-play .hero__copy > *:nth-child(2) {
+  animation-delay: calc(var(--splash-text-in) + 0.08s);
+}
+
+.splash-play .hero__copy > *:nth-child(3) {
+  animation-delay: calc(var(--splash-text-in) + 0.16s);
+}
+
+.splash-play .hero__copy > *:nth-child(4) {
+  animation-delay: calc(var(--splash-text-in) + 0.24s);
+}
+
+.splash-play .adoption {
+  animation: fade-up 0.7s ease var(--splash-tail) backwards;
+}
+
+/* ==========================================================================
+   Adoption gap visual
+   ========================================================================== */
+
+/* Composed with `.panel`; only the padding differs. */
+.adoption {
+  padding: clamp(1.4rem, 3.5vw, 2rem);
+}
+
+.adoption__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: var(--weight-display-sm);
+  letter-spacing: -0.02em;
+}
+
+.adoption__rows {
+  display: grid;
+  gap: 1.4rem;
+  margin-top: 1.6rem;
+}
+
+.adoption__value {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: var(--weight-display);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.adoption__row--target .adoption__value {
+  background: var(--brand-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.adoption__label {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 0.3rem;
+}
+
+.adoption__track {
+  background: rgba(148, 163, 184, 0.14);
+  border-radius: 999px;
+  height: 10px;
+  margin-top: 0.85rem;
+  overflow: hidden;
+}
+
+.adoption__fill {
+  background: var(--brand-gradient);
+  border-radius: 999px;
+  display: block;
+  height: 100%;
+  transform-origin: left center;
+  width: var(--pct);
+}
+
+.adoption__row--current .adoption__fill {
+  background: rgba(148, 163, 184, 0.55);
+}
+
+.adoption__caption {
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin-top: 1.6rem;
+  padding-top: 1rem;
+}
+
+/* ==========================================================================
+   Maturity ladder
+   ========================================================================== */
+
+.ladder {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 760px) {
+  .ladder {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.rung {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.35rem;
+  position: relative;
+}
+
+.rung--marked {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 34px rgba(99, 102, 241, 0.18);
+}
+
+.rung__index {
+  color: var(--violet);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+}
+
+.rung__label {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: var(--weight-display-sm);
+  letter-spacing: -0.02em;
+  margin-top: 0.35rem;
+}
+
+.rung__body {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 0.6rem;
+}
+
+.rung__flag {
+  background: var(--brand-gradient);
+  border-radius: 999px;
+  color: #0a0a0f;
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  margin-top: 1rem;
+  padding: 0.2rem 0.6rem;
+}
+
+/* ==========================================================================
+   Services
+   ========================================================================== */
+
+.service-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 840px) {
+  .service-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.service {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Flex + gap, so spacing never depends on text nodes between elements. */
+.service__move {
+  align-items: baseline;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  gap: 0.35em;
+  letter-spacing: 0.06em;
+}
+
+.service__move em {
+  color: var(--violet);
+  font-style: normal;
+}
+
+.service__title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: var(--weight-display-sm);
+  letter-spacing: -0.025em;
+  margin-top: 0.5rem;
+}
+
+.service__body {
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+}
+
+.service__deliverables {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+  margin-top: 1.25rem;
+}
+
+.service__deliverables li {
+  color: var(--text-muted);
+  font-size: 0.89rem;
+  padding-left: 1.4rem;
+  position: relative;
+}
+
+.service__deliverables li::before {
+  background: var(--brand-gradient);
+  border-radius: 50%;
+  content: "";
+  height: 6px;
+  left: 0;
+  position: absolute;
+  top: 0.6em;
+  width: 6px;
+}
+
+/* ==========================================================================
+   Funding
+   ========================================================================== */
+
+.funding-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 720px) {
+  .funding-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .funding-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.funding__label {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: var(--weight-display-sm);
+  letter-spacing: -0.02em;
+}
+
+.funding__amount {
+  color: var(--violet);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+}
+
+.funding__body {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 0.7rem;
+}
+
+.disclaimer {
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 2rem;
+  max-width: var(--measure);
+  padding-left: 1rem;
+}
+
+/* ==========================================================================
+   CTA band
+   ========================================================================== */
+
+/* Composed with `.panel`. */
+.cta-band {
+  padding: clamp(2rem, 6vw, 3.25rem);
+  text-align: center;
+}
+
+.cta-band__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  font-weight: var(--weight-display);
+  letter-spacing: -0.03em;
+}
+
+.cta-band__body {
+  color: var(--text-muted);
+  margin: 1rem auto 1.85rem;
+  max-width: 48ch;
+}
+
+/* ==========================================================================
+   Contact
+   ========================================================================== */
+
+.contact-layout {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 900px) {
+  .contact-layout {
+    align-items: start;
+    grid-template-columns: 1.35fr 0.65fr;
+  }
+}
+
+/* Opaque, not translucent: form fields must never sit over the drifting
+   glow-dot canvas, which makes labels and placeholders hard to read. */
+.form-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: clamp(1.4rem, 4vw, 2.25rem);
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 1.15rem;
+}
+
+.field__label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.field__optional {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.field input,
+.field select,
+.field textarea {
+  background: var(--ground);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.7rem 0.85rem;
+  width: 100%;
+}
+
+.field textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.field-row {
+  display: grid;
+  gap: 1.15rem;
+}
+
+@media (min-width: 620px) {
+  .field-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.form-notice {
+  border: 1px dashed var(--border-strong);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9rem 1rem;
+}
+
+.contact-aside__title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: var(--weight-display-sm);
+}
+
+.contact-aside__body {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.6rem;
+}
+
+.contact-aside__email {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  word-break: break-all;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: clamp(3rem, 8vw, 6rem);
+  padding-block: 2.25rem;
+  position: relative;
+  z-index: 2;
+}
+
+.site-footer__line {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.site-footer__email {
+  margin-left: 0.5rem;
+}
+
+.site-footer__note {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin-top: 0.6rem;
+  max-width: var(--measure);
+}
+
+/* ==========================================================================
+   404
+   ========================================================================== */
+
+.notfound {
+  padding-block: clamp(5rem, 16vw, 10rem);
+  text-align: center;
+}
+
+.notfound__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: var(--weight-display);
+  letter-spacing: -0.03em;
+}
+
+.notfound__body {
+  color: var(--text-muted);
+  margin: 1rem auto 2rem;
+  max-width: 44ch;
+}
+
+/* ==========================================================================
+   Splash overlay — first homepage view of a session
+   ========================================================================== */
+
+/* Hidden until the inline script opts the page in. That way a visitor with
+   JavaScript disabled never sees it, and nothing is ever left covering the
+   page waiting for a script that will not run. */
+.splash {
+  display: none;
+}
+
+.splash-play .splash {
+  align-content: center;
+  animation: splash-out var(--splash-out-dur) ease var(--splash-out-at) forwards;
+  background: var(--ground);
+  display: grid;
+  inset: 0;
+  justify-items: center;
+  position: fixed;
+  z-index: 90;
+}
+
+.splash__brand .brand__mark {
+  height: clamp(150px, 32vw, 230px);
+  width: clamp(150px, 32vw, 230px);
+}
+
+/*
+ * Display-sized here, so back up to the full weight — the shared `.wordmark`
+ * default is tuned for the small nav lockup.
+ *
+ * The floor has to stay clear of that nav size (1.4rem): below a 480px
+ * viewport the fluid middle term bottoms out, and at the old 1.35rem floor the
+ * full-screen wordmark rendered *smaller* than the one in the nav bar.
+ */
+.splash__brand .brand__wordmark {
+  animation: fade-up var(--splash-wordmark-dur) ease var(--splash-wordmark-at) backwards;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: var(--weight-display);
+}
+
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ==========================================================================
+   Splash choreography — landing page, first visit of a session only
+   ========================================================================== */
+
+/* Scoped to the overlay's mark, so the nav copy of the logo never animates. */
+.splash-play .splash .logo__wave {
+  animation: draw-wave var(--splash-wave-dur) cubic-bezier(0.4, 0, 0.2, 1) var(--splash-wave-at)
+    backwards;
+}
+
+.splash-play .splash .logo__dot {
+  animation:
+    drop-dot var(--splash-dot-dur) var(--splash-dot-at) backwards,
+    dot-glow-pulse 3s ease-in-out var(--splash-wordmark-at) 1;
 }
 
 @keyframes draw-wave {
+  from {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+
   to {
+    stroke-dasharray: 1000;
     stroke-dashoffset: 0;
-  }
-}
-
-/* Dot falls from top of viewport */
-#dot {
-  opacity: 0;
-  transform: translateY(-70vh);
-  animation:
-    drop-dot 0.65s 1.25s forwards,
-    dot-glow-pulse 3s ease-in-out 1.9s infinite;
-}
-
-@keyframes dot-glow-pulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.6));
-  }
-
-  50% {
-    filter: drop-shadow(0 0 14px rgba(196, 181, 253, 0.95));
   }
 }
 
@@ -146,29 +1049,15 @@ footer {
   }
 }
 
-h1 {
-  font-family: "Anek Telugu", sans-serif;
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin-bottom: 0.75rem;
-  opacity: 0;
-  animation: fade-up 0.6s ease 2s forwards;
-}
+@keyframes dot-glow-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.6));
+  }
 
-h1 span {
-  background: linear-gradient(135deg, #6366f1, #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-p {
-  color: #64748b;
-  font-size: 1rem;
-  max-width: 360px;
-  opacity: 0;
-  animation: fade-up 0.6s ease 2.2s forwards;
+  50% {
+    filter: drop-shadow(0 0 14px rgba(196, 181, 253, 0.95));
+  }
 }
 
 @keyframes fade-up {
@@ -183,11 +1072,41 @@ p {
   }
 }
 
-footer {
-  position: fixed;
-  bottom: 1.5rem;
-  font-size: 0.8rem;
-  color: #334155;
-  opacity: 0;
-  animation: fade-up 0.6s ease 2.4s forwards;
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion — skip the splash entirely, nothing stays hidden
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /*
+   * The overlay is skipped outright rather than flashed for a few frames.
+   *
+   * Nothing else needs un-hiding here. Every element the splash hides is
+   * hidden by an animation's `backwards`/`forwards` fill, and the override
+   * above collapses those to 0.01ms with no delay — so each one lands on its
+   * visible end state immediately. An explicit per-selector reset used to sit
+   * here mirroring the choreography, which meant two lists to keep in step;
+   * it had already drifted out of sync without anyone noticing.
+   */
+  .splash {
+    display: none !important;
+  }
 }

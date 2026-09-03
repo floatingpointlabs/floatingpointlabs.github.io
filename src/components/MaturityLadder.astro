@@ -1,0 +1,29 @@
+---
+import type { Locale } from "../config/site";
+
+import { MOST_SMES_STAGE, SOURCES, STAGE_IDS } from "../data/strategy";
+import { getCopy } from "../i18n";
+import SourceNote from "./SourceNote.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+---
+
+<div class="ladder">
+  {
+    STAGE_IDS.map((id, index) => (
+      <article class:list={["rung", { "rung--marked": id === MOST_SMES_STAGE }]}>
+        <p class="rung__index">{String(index + 1).padStart(2, "0")}</p>
+        <h3 class="rung__label">{copy.stages[id].label}</h3>
+        <p class="rung__body">{copy.stages[id].body}</p>
+        {id === MOST_SMES_STAGE && <p class="rung__flag">{copy.home.ladder.mostSmes}</p>}
+      </article>
+    ))
+  }
+</div>
+
+<SourceNote lang={lang} source={SOURCES.blueprint} />

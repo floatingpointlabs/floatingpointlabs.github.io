@@ -1,0 +1,21 @@
+---
+import type { Locale } from "../config/site";
+
+import { getCopy, pathFor } from "../i18n";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+---
+
+<BaseLayout description={copy.notFound.body} lang={lang} title={copy.notFound.title}>
+  <section class="notfound shell">
+    <h1 class="notfound__title">{copy.notFound.title}</h1>
+    <p class="notfound__body">{copy.notFound.body}</p>
+    <a class="btn btn--primary" href={pathFor(lang, "")}>{copy.notFound.link}</a>
+  </section>
+</BaseLayout>

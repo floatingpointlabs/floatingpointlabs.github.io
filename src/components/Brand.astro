@@ -1,0 +1,36 @@
+---
+/**
+ * The brand lockup: the mark plus the wordmark, with the gradient on "Labs".
+ *
+ * Sizing belongs to the caller — pass a context class (`site-nav__brand`,
+ * `splash__brand`) and style `.brand__mark` / `.brand__wordmark` under it, so
+ * this component stays the single definition of *what* the lockup is while
+ * each placement decides how big it should be.
+ */
+import Logo from "./Logo.astro";
+
+interface Props {
+  class?: string;
+  /** Renders the lockup as a link when set; a plain span otherwise. */
+  href?: string;
+  /**
+   * Namespaces the SVG gradient ids, which must be unique per instance on a
+   * page. Required rather than generated: a random id would change the built
+   * HTML on every build for no benefit.
+   */
+  idPrefix: string;
+  /** `horizontal` sets the wordmark beside the mark; `vertical` stacks them. */
+  orientation?: "horizontal" | "vertical";
+}
+
+const { class: className, href, idPrefix, orientation = "horizontal" } = Astro.props;
+
+const Tag = href ? "a" : "span";
+---
+
+<Tag class:list={["brand", `brand--${orientation}`, className]} href={href}>
+  <Logo class="brand__mark" idPrefix={idPrefix} />
+  <span class="brand__wordmark wordmark">
+    Floating Point <span class="wordmark__accent">Labs.</span>
+  </span>
+</Tag>

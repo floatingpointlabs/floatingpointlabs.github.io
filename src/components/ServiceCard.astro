@@ -1,0 +1,59 @@
+---
+import type { Locale } from "../config/site";
+import type { Service } from "../data/strategy";
+
+import { getCopy } from "../i18n";
+
+interface Props {
+  /** Drops the deliverables list — used for the homepage summary. */
+  compact?: boolean;
+  lang: Locale;
+  service: Service;
+}
+
+const { compact = false, lang, service } = Astro.props;
+const copy = getCopy(lang);
+
+// Structure comes from `data/strategy.ts`, wording from the dictionaries,
+// joined here on the service id.
+const text = copy.services.items[service.id];
+const from = copy.stages[service.stageFrom].label;
+const to = copy.stages[service.stageTo].label;
+
+// The readiness assessment locates you on the ladder rather than moving you up
+// it, so a "Novice → Novice" arrow would be nonsense.
+const locatesOnly = service.stageFrom === service.stageTo;
+---
+
+<article class="panel service">
+  {
+    /*
+    Each part is its own element and the spacing comes from flex `gap`, not
+    from text nodes: a literal space between an expression and an adjacent
+    element is dropped, which rendered as "For businesses at<em>Novice</em>".
+  */
+  }
+  <p class="service__move">
+    <span>{locatesOnly ? copy.services.startsAt : copy.services.movesYouFrom}</span>
+    <em>{from}</em>
+    {!locatesOnly && <span aria-hidden="true">&rarr;</span>}
+    {!locatesOnly && <em>{to}</em>}
+  </p>
+
+  <h3 class="service__title">{text.label}</h3>
+  <p class="service__body">{text.body}</p>
+
+  {
+    !compact && (
+      <ul class="service__deliverables">
+        {text.deliverables.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    )
+  }
+
+  <div class="tag-row">
+    {service.barriers.map((barrier) => <span class="tag">{copy.services.barriers[barrier]}</span>)}
+  </div>
+</article>

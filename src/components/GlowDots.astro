@@ -3,6 +3,36 @@
 ---
 
 <script>
+  /*
+   * The splash contract, duplicated rather than imported from a shared module.
+   * Astro inlines a component script only while it has no imports; sharing
+   * these few lines made it emit three separate JS files instead, so every
+   * page paid network round trips to deduplicate ~260 bytes.
+   *
+   * Kept in sync with `.splash-play` in global.css and the inline bootstrap in
+   * Splash.astro.
+   */
+  const SPLASH_PLAYING_CLASS = "splash-play";
+  const SPLASH_END_EVENT = "fpl:splash-end";
+
+  /*
+   * Reads a CSS time token (`2.4s`, `240ms`) as milliseconds, so the beats
+   * below stay tied to the choreography in global.css rather than restating
+   * it. `fallback` matters: a missing token would otherwise yield 0 and fire
+   * the beat immediately, which looks like a bug rather than a missing token.
+   */
+  function cssTimeMs(token: string, fallback: number): number {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+    const value = Number.parseFloat(raw);
+
+    if (!Number.isFinite(value)) return fallback;
+    if (raw.endsWith("ms")) return value;
+    if (raw.endsWith("s")) return value * 1000;
+    return fallback;
+  }
+
+  // Drifting glow dots. Renders on every page as part of the ambient
+  // treatment, sitting behind all content at z-index 1.
   const canvas = document.createElement("canvas");
   Object.assign(canvas.style, {
     height: "100%",
@@ -15,12 +45,18 @@
   document.body.prepend(canvas);
   const ctx = canvas.getContext("2d")!;
 
+  // Held as locals rather than read back off the canvas: the draw loop needs
+  // them ~56 times a frame, and a DOM property read is not free.
+  let width = 0;
+  let height = 0;
+
   function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
   }
   resize();
-  window.addEventListener("resize", resize);
 
   const palette = ["#a78bfa", "#818cf8", "#c4b5fd", "#6366f1", "#8b5cf6"];
 
@@ -39,18 +75,25 @@
 
   let globalOpacity = 0;
 
-  function draw(t: number) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  function loop(t: number) {
+    paint(t, true);
+    requestAnimationFrame(loop);
+  }
+
+  function paint(t: number, drift: boolean) {
+    ctx.clearRect(0, 0, width, height);
 
     for (const d of dots) {
-      d.x += d.vx;
-      d.y += d.vy;
-      if (d.x < -20) d.x = canvas.width + 20;
-      if (d.x > canvas.width + 20) d.x = -20;
-      if (d.y < -20) d.y = canvas.height + 20;
-      if (d.y > canvas.height + 20) d.y = -20;
+      if (drift) {
+        d.x += d.vx;
+        d.y += d.vy;
+        if (d.x < -20) d.x = width + 20;
+        if (d.x > width + 20) d.x = -20;
+        if (d.y < -20) d.y = height + 20;
+        if (d.y > height + 20) d.y = -20;
+      }
 
-      const twinkle = 0.55 + 0.45 * Math.sin(t * d.twinkleSpeed + d.twinklePhase);
+      const twinkle = drift ? 0.55 + 0.45 * Math.sin(t * d.twinkleSpeed + d.twinklePhase) : 1;
       const a = d.baseAlpha * twinkle * globalOpacity;
       if (a < 0.005) continue;
 
@@ -72,18 +115,55 @@
       ctx.fill();
       ctx.restore();
     }
-
-    requestAnimationFrame(draw);
   }
 
-  setTimeout(() => {
-    const t0 = performance.now();
-    const FADE_DUR = 1400;
-    function fade(now: number) {
-      globalOpacity = Math.min(1, (now - t0) / FADE_DUR);
-      if (globalOpacity < 1) requestAnimationFrame(fade);
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Coalesce resize bursts onto one frame: every assignment to canvas.width
+  // reallocates and clears the backing store, and dragging a window edge fires
+  // this event dozens of times a second.
+  let resizeQueued = false;
+  window.addEventListener("resize", () => {
+    if (resizeQueued) return;
+    resizeQueued = true;
+    requestAnimationFrame(() => {
+      resizeQueued = false;
+      resize();
+      if (reduced) paint(0, false);
+    });
+  });
+
+  if (reduced) {
+    // Still part of the atmosphere, just not moving.
+    globalOpacity = 1;
+    paint(0, false);
+  } else {
+    // The splash overlay sits on top of this canvas, so there is no point
+    // drawing until it has dissolved. The delay is read from the same CSS
+    // token that drives the overlay, rather than restated here as a constant.
+    const splashing = document.body.classList.contains(SPLASH_PLAYING_CLASS);
+    const fadeDuration = splashing ? 1400 : 600;
+
+    let started = false;
+
+    function start() {
+      if (started) return;
+      started = true;
+
+      const t0 = performance.now();
+
+      function fade(now: number) {
+        globalOpacity = Math.min(1, (now - t0) / fadeDuration);
+        if (globalOpacity < 1) requestAnimationFrame(fade);
+      }
+      requestAnimationFrame(fade);
+      requestAnimationFrame(loop);
     }
-    requestAnimationFrame(fade);
-    requestAnimationFrame(draw);
-  }, 1900);
+
+    setTimeout(start, splashing ? cssTimeMs("--splash-grid-in", 2500) : 0);
+
+    // Skipping the splash un-gates the grid and centre glow instantly, so this
+    // canvas has to come with them.
+    if (splashing) window.addEventListener(SPLASH_END_EVENT, start, { once: true });
+  }
 </script>

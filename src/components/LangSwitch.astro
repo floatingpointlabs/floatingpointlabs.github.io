@@ -1,0 +1,21 @@
+---
+import type { Locale } from "../config/site";
+
+import { getCopy, otherLocale, pathFor, stripLocale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const copy = getCopy(lang);
+
+// Land on the same page in the other language rather than dumping the visitor
+// back on the home page.
+const target = otherLocale(lang);
+const href = pathFor(target, stripLocale(Astro.url.pathname));
+---
+
+<a aria-label={copy.common.langSwitchLabel} class="lang-switch" href={href} hreflang={target}>
+  {copy.common.otherLangName}
+</a>
