@@ -1013,14 +1013,26 @@ main {
     dot-glow-pulse 3s ease-in-out var(--splash-wordmark-at) 1;
 }
 
+/*
+ * The path declares `pathLength="1"` (see Logo.astro), so dash units are a
+ * fraction of the stroke and the offset sweeps the whole wave evenly across
+ * the duration.
+ *
+ * This previously used a flat 1000. The path is only ~52 user units long, so a
+ * 1000-unit dash left the stroke fully hidden until the offset fell below ~52
+ * — the entire draw happened in the last few percent of the range while the
+ * wave sat motionless for the rest of the 0.9s. `main` avoided that by
+ * measuring `getTotalLength()` in JS and overwriting both properties; declared
+ * on the element instead, this needs no script and cannot race one.
+ */
 @keyframes draw-wave {
   from {
-    stroke-dasharray: 1000;
-    stroke-dashoffset: 1000;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
   }
 
   to {
-    stroke-dasharray: 1000;
+    stroke-dasharray: 1;
     stroke-dashoffset: 0;
   }
 }

@@ -5,7 +5,9 @@ import perfectionist from "eslint-plugin-perfectionist";
 import tseslint from "typescript-eslint";
 
 export default [
-  { ignores: ["dist/", ".astro/", "node_modules/"] },
+  // `.claude/` holds git worktrees, whose generated `.astro/` type files would
+  // otherwise be linted as if they were source in this checkout.
+  { ignores: ["dist/", ".astro/", "node_modules/", ".claude/"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
